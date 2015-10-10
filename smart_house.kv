@@ -1,0 +1,36 @@
+
+
+<MainScreen>:
+    FloatLayout:
+        size: self.parent.size
+        pos: self.parent.pos
+
+        canvas:
+            Color:
+                rgb: 0.7, 0.7, 0.7
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Button:
+            size_hint: 0.9, 0.15
+            pos_hint: {'x':0.05, 'y':.1}
+            text: 'Goto settings'
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'settings'
+
+        Button:
+            size_hint: 0.9, 0.15
+            pos_hint: {'x':0.05, 'y':.3}
+            text: 'Quit'
+
+<SettingsScreen>:
+    BoxLayout:
+        Button:
+            text: 'My settings button'
+        Button:
+            text: 'Back to menu'
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'main'
