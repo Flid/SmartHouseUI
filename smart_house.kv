@@ -26,11 +26,14 @@
             text: 'Quit'
 
 <SettingsScreen>:
+    update_btn: update_btn
+
     BoxLayout:
         Button:
-            text: 'My settings button'
+            id: update_btn
+            text: 'Update System'
         Button:
-            text: 'Back to menu'
+            text: 'Main Screen'
             on_press:
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'main'

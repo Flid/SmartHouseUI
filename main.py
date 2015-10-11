@@ -8,6 +8,8 @@ from kivy.uix.layout import Layout
 from kivy.clock import Clock
 from kivy.uix.button import Button
 
+from auto_update import AutoUpdater
+
 
 from kivy.uix.screenmanager import Screen, ScreenManager
 
@@ -17,11 +19,21 @@ class MainScreen(Screen):
 
 
 class SettingsScreen(Screen):
-    pass
+    update_btn = ObjectProperty(None)
+
+    def on_update_btn_click(self, instance):
+        AutoUpdater(
+            'https://github.com/Flid/SmartHouseUI.git',
+            'master',
+            __file__,
+        ).update()
+
+    def setup(self):
+        self.update_btn.bind(on_press=self.on_update_btn_click)
 
 
 class SmartHouseApp(App):
-    kv_file='smart_house.kv'
+    kv_file = 'smart_house.kv'
 
     def build(self):
         self.sm = ScreenManager()
@@ -32,12 +44,15 @@ class SmartHouseApp(App):
         self.settings_screen = SettingsScreen(name='settings')
         self.sm.add_widget(self.settings_screen)
 
+        self.settings_screen.setup()
+
         return self.sm
 
 
 app = SmartHouseApp()
+app.run()
 
-import json
+'''import json
 import socket
 
 data = {
@@ -53,6 +68,4 @@ for i in range(100):
     clientsocket.connect(('192.168.42.1', 9999))
     clientsocket.send(json.dumps(data).encode())
 
-exit()
-
-print(clientsocket.recv(1024))
+exit()'''
