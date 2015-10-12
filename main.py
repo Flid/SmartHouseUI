@@ -1,11 +1,11 @@
+import sys
+import os
+
 from kivy.app import App
 from kivy.properties import ObjectProperty
 
-from auto_updater import AutoUpdater
-
-
 from kivy.uix.screenmanager import Screen, ScreenManager
-
+from utils import self_update
 
 class MainScreen(Screen):
     pass
@@ -15,10 +15,7 @@ class SettingsScreen(Screen):
     update_btn = ObjectProperty(None)
 
     def on_update_btn_click(self, instance):
-        AutoUpdater(
-            'https://github.com/Flid/SmartHouseUI.git',
-            'master',
-        ).run()
+        self_update()
 
     def setup(self):
         self.update_btn.bind(on_press=self.on_update_btn_click)

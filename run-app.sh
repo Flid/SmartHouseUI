@@ -1,0 +1,1 @@
+python3.4 main.py &> ~/tmp/smart_house_ui.log
