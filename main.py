@@ -1,14 +1,7 @@
 from kivy.app import App
-from kivy.uix.widget import Widget
-from kivy.uix.switch import Switch
 from kivy.properties import ObjectProperty
-from kivy.vector import Vector
-from kivy.core.window import Window
-from kivy.uix.layout import Layout
-from kivy.clock import Clock
-from kivy.uix.button import Button
 
-from auto_update import AutoUpdater
+from auto_updater import AutoUpdater
 
 
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -25,8 +18,7 @@ class SettingsScreen(Screen):
         AutoUpdater(
             'https://github.com/Flid/SmartHouseUI.git',
             'master',
-            __file__,
-        ).update()
+        ).run()
 
     def setup(self):
         self.update_btn.bind(on_press=self.on_update_btn_click)
@@ -51,21 +43,3 @@ class SmartHouseApp(App):
 
 app = SmartHouseApp()
 app.run()
-
-'''import json
-import socket
-
-data = {
-    'type': 'motors_state',
-    'data': {
-        'vertical': 1,
-        'horizontal': 0,
-    },
-}
-
-for i in range(100):
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect(('192.168.42.1', 9999))
-    clientsocket.send(json.dumps(data).encode())
-
-exit()'''
