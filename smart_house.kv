@@ -1,5 +1,4 @@
 
-
 <MainScreen>:
     FloatLayout:
         size: self.parent.size
@@ -7,10 +6,115 @@
 
         canvas:
             Color:
-                rgb: 0.7, 0.7, 0.7
+                rgb: 0, 0, 0
             Rectangle:
                 pos: self.pos
                 size: self.size
+
+        WeatherWidget:
+            temperature_label: temperature_label
+            humidity_label: humidity_label
+            pressure_label: pressure_label
+            recommendation_label: recommendation_label
+            rain_rating: rain_rating
+            icon: icon
+            size_hint: 0.46, 0.46
+            pos_hint: {'x':0.02, 'y':0.52}
+
+            Image:
+                size: self.parent.size
+                pos: self.parent.pos
+                source: 'widget_background.png'
+                allow_stretch: True
+                keep_ratio: False
+
+            AsyncImage:
+                id: icon
+                size_hint: 0.5, 0.5
+                pos_hint: {'x':0, 'y':0.5}
+                allow_stretch: True
+                opacity: 0
+
+            FloatLayout:
+                size_hint: 0.27, 0.43
+                pos_hint: {'x':0.5, 'y':0.5}
+
+                Label:
+                    text_size: self.size
+                    halign: 'right'
+                    size_hint: 1, 0.33
+                    pos_hint: {'x':0, 'y':0.66}
+                    text: 'Temperature:'
+
+                Label:
+                    text_size: self.size
+                    halign: 'right'
+                    size_hint: 1, 0.3
+                    pos_hint: {'x':0, 'y':0.33}
+                    text: 'Humidity:'
+
+                Label:
+                    text_size: self.size
+                    halign: 'right'
+                    size_hint: 1, 0.3
+                    pos_hint: {'x':0, 'y':0}
+                    text: 'Pressure:'
+
+            FloatLayout:
+                size_hint: 0.3, 0.43
+                pos_hint: {'x':0.8, 'y':0.5}
+
+                Label:
+                    id: temperature_label
+                    text_size: self.size
+                    halign: 'left'
+                    size_hint: 1, 0.33
+                    pos_hint: {'x':0, 'y':0.66}
+                    text: 'n/a:'
+
+                Label:
+                    id: humidity_label
+                    text_size: self.size
+                    halign: 'left'
+                    size_hint: 1, 0.3
+                    pos_hint: {'x':0, 'y':0.33}
+                    text: 'n/a'
+
+                Label:
+                    id: pressure_label
+                    text_size: self.size
+                    halign: 'left'
+                    size_hint: 1, 0.3
+                    pos_hint: {'x':0, 'y':0}
+                    text: 'n/a'
+            FloatLayout:
+                size_hint: 0.8, 0.35
+                pos_hint: {'x':0.1, 'y':0.1}
+
+                Label:
+                    size_hint: 0.55, 0.5
+                    pos_hint: {'x':0.0, 'y':0.5}
+                    text: 'Rain rating:'
+                    font_size: 24
+
+                Label:
+                    id: rain_rating
+                    text_size: self.size
+                    halign: 'left'
+                    valign: 'middle'
+                    size_hint: 0.4, 0.5
+                    pos_hint: {'x':0.6, 'y':0.5}
+                    size: self.parent.size
+                    text: 'n/a'
+                    font_size: 24
+
+                Label:
+                    id: recommendation_label
+                    size_hint: 0.8, 0.35
+                    pos_hint: {'x':0.1, 'y':0.1}
+                    size: self.parent.size
+                    text: 'No recommendations'
+                    font_size: 24
 
         Button:
             size_hint: 0.1, 0.1
@@ -34,7 +138,7 @@
 
         canvas:
             Color:
-                rgb: 0.7, 0.7, 0.7
+                rgb: 0, 0, 0
             Rectangle:
                 pos: self.pos
                 size: self.size

@@ -3,9 +3,10 @@ import os
 
 from kivy.app import App
 from kivy.properties import ObjectProperty
-
 from kivy.uix.screenmanager import Screen, ScreenManager
 from utils import self_update
+from weather_widget import WeatherWidget
+
 
 class MainScreen(Screen):
     pass
