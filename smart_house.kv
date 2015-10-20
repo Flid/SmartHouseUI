@@ -1,3 +1,89 @@
+#:import WeatherWidget smart_house_ui.WeatherWidget
+
+<Sidebar@RelativeLayout>:
+    size_hint: None, None
+    size: 64, 417
+    pos: 0, (480 - 417) / 2
+
+    Image:
+        size_hint: None, None
+        pos: 0, 417 - 428
+        size: 99, 428
+        source: 'static/sidebar.png'
+
+    #canvas:
+    #    Rectangle:
+    #        size: self.size
+    #        pos: 0, 0
+
+
+<WeatherPanel@WeatherWidget>:
+    size_hint: None, None
+    size: 321, 199
+    pos: 0, 199 + 20
+
+    Image:
+        size_hint: None, None
+        source: 'static/panel.png'
+        pos: 0, -11
+        size: 330, 210
+
+<MusicPanel@WeatherWidget>:
+    size_hint: None, None
+    size: 321, 199
+    pos: 321 + 20, 199 + 20
+
+    Image:
+        size_hint: None, None
+        source: 'static/panel.png'
+        pos: 0, -11
+        size: 330, 210
+
+
+<CalendarPanel@WeatherWidget>:
+    size_hint: None, None
+    size: 321, 199
+    pos: 321 + 20, 0
+
+    Image:
+        size_hint: None, None
+        source: 'static/panel.png'
+        pos: 0, -11
+        size: 330, 210
+
+
+<OneMorePanel@WeatherWidget>:
+    size_hint: None, None
+    size: 321, 199
+    pos: 0, 0
+
+    Image:
+        size_hint: None, None
+        source: 'static/panel.png'
+        pos: 0, -11
+        size: 330, 210
+
+<Panels@RelativeLayout>:
+    size_hint: None, None
+    size: 800 - 64 - 37 * 2 , 417
+    pos: 64 + 37, (480 - 417) / 2
+
+    weather_panel: weather_panel
+    music_panel: music_panel
+    calendar_panel: calendar_panel
+
+    WeatherPanel:
+        id: weather_panel
+
+    MusicPanel:
+        id: music_panel
+
+    CalendarPanel:
+        id: calendar_panel
+
+    OneMorePanel:
+        id: one_more_panel
+
 
 <MainScreen>:
     FloatLayout:
@@ -5,137 +91,28 @@
         pos: self.parent.pos
 
         Image:
-            source: 'background.jpg'
+            source: 'static/background.png'
             size: self.size
             pos: self.pos
 
-        WeatherWidget:
-            temperature_label: temperature_label
-            humidity_label: humidity_label
-            pressure_label: pressure_label
-            recommendation_label: recommendation_label
-            status_light: status_light
-            rain_rating: rain_rating
-            icon: icon
+        Sidebar:
+            id: sidebar
 
-            size_hint: 0.46, 0.46
-            pos_hint: {'x':0.02, 'y':0.52}
+        Panels:
+            id: panels
 
-            Image:
-                size: self.parent.size
-                pos: self.parent.pos
-                source: 'widget_background.png'
-                allow_stretch: True
-                keep_ratio: False
+        #Button:
+        #    size_hint: 0.1, 0.1
+        #    pos_hint: {'x':0, 'y':0}
+        #    text: 'Settings'
+        #    #on_press:
+        #    #    root.manager.transition.direction = 'left'
+        #    #    root.manager.current = 'settings'
 
-            AsyncImage:
-                id: icon
-                size_hint: 0.5, 0.5
-                pos_hint: {'x':0, 'y':0.5}
-                allow_stretch: True
-                opacity: 0
-
-            FloatLayout:
-                size_hint: 0.27, 0.43
-                pos_hint: {'x':0.5, 'y':0.5}
-
-                Label:
-                    text_size: self.size
-                    halign: 'right'
-                    size_hint: 1, 0.33
-                    pos_hint: {'x':0, 'y':0.66}
-                    text: 'Temperature:'
-
-                Label:
-                    text_size: self.size
-                    halign: 'right'
-                    size_hint: 1, 0.3
-                    pos_hint: {'x':0, 'y':0.33}
-                    text: 'Humidity:'
-
-                Label:
-                    text_size: self.size
-                    halign: 'right'
-                    size_hint: 1, 0.3
-                    pos_hint: {'x':0, 'y':0}
-                    text: 'Pressure:'
-
-            FloatLayout:
-                size_hint: 0.3, 0.43
-                pos_hint: {'x':0.8, 'y':0.5}
-
-                Label:
-                    id: temperature_label
-                    text_size: self.size
-                    halign: 'left'
-                    size_hint: 1, 0.33
-                    pos_hint: {'x':0, 'y':0.66}
-                    text: 'n/a:'
-
-                Label:
-                    id: humidity_label
-                    text_size: self.size
-                    halign: 'left'
-                    size_hint: 1, 0.3
-                    pos_hint: {'x':0, 'y':0.33}
-                    text: 'n/a'
-
-                Label:
-                    id: pressure_label
-                    text_size: self.size
-                    halign: 'left'
-                    size_hint: 1, 0.3
-                    pos_hint: {'x':0, 'y':0}
-                    text: 'n/a'
-
-                BlinkingImage:
-                    id: status_light
-                    pos_hint: {'x':0.3, 'y':0.75}
-                    size_hint: 0.2, 0.2
-                    allow_stretch: True
-                    source: 'light_green.png'
-
-            FloatLayout:
-                size_hint: 0.8, 0.35
-                pos_hint: {'x':0.1, 'y':0.1}
-
-                Label:
-                    size_hint: 0.55, 0.5
-                    pos_hint: {'x':0.0, 'y':0.5}
-                    text: 'Rain rating:'
-                    font_size: 24
-
-                Label:
-                    id: rain_rating
-                    text_size: self.size
-                    halign: 'left'
-                    valign: 'middle'
-                    size_hint: 0.4, 0.5
-                    pos_hint: {'x':0.6, 'y':0.5}
-                    size: self.parent.size
-                    text: 'n/a'
-                    font_size: 24
-
-                Label:
-                    id: recommendation_label
-                    size_hint: 0.8, 0.35
-                    pos_hint: {'x':0.1, 'y':0.1}
-                    size: self.parent.size
-                    text: 'No recommendations'
-                    font_size: 24
-
-        Button:
-            size_hint: 0.1, 0.1
-            pos_hint: {'x':0, 'y':0}
-            text: 'Settings'
-            on_press:
-                root.manager.transition.direction = 'left'
-                root.manager.current = 'settings'
-
-        Button:
-            size_hint: 0.1, 0.1
-            pos_hint: {'x':0.9, 'y':0}
-            text: 'Quit'
+        #Button:
+        #    size_hint: 0.1, 0.1
+        #    pos_hint: {'x':0.9, 'y':0}
+        #    text: 'Quit'
 
 <SettingsScreen>:
     update_btn: update_btn

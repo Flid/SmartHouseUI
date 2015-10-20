@@ -1,13 +1,10 @@
-import sys
-import os
-
 from kivy.app import App
 from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import Screen, ScreenManager
-from utils import self_update, sensors_update
 from kivy.uix.image import Image
 from kivy.animation import Animation
-from weather_widget import WeatherWidget
+
+from smart_house_ui.utils import self_update, sensors_update
 
 
 class MainScreen(Screen):
@@ -52,7 +49,3 @@ class SmartHouseApp(App):
 
         self.settings_screen.setup()
         return self.sm
-
-
-app = SmartHouseApp()
-app.run()

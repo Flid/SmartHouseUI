@@ -1,7 +1,7 @@
 from kivy.loader import Loader
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
-from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 import requests
 from requests.exceptions import RequestException
 
@@ -9,30 +9,20 @@ from requests.exceptions import RequestException
 AVERAGE_PRESSURE = 1013.25  # bar
 
 
-class WeatherWidget(FloatLayout):
-    LIGHT_OFFLINE_IMG = 'light_red.png'
-    LIGHT_ONLINE_IMG = 'light_green.png'
-
-    temperature_label = ObjectProperty(None)
-    humidity_label = ObjectProperty(None)
-    pressure_label = ObjectProperty(None)
-    recommendation_label = ObjectProperty(None)
-    rain_rating = ObjectProperty(None)
-    icon = ObjectProperty(None)
-    status_light = ObjectProperty(None)
-
+class WeatherWidget(RelativeLayout):
     def __init__(self, *args, **kwargs):
         super(WeatherWidget, self).__init__(*args, **kwargs)
         Clock.schedule_once(self.update_weather, timeout=1)
         Clock.schedule_interval(self.update_weather, timeout=10)
 
     def set_state_error(self):
-        self.status_light.source = self.LIGHT_OFFLINE_IMG
+        pass # self.status_light.source = self.LIGHT_OFFLINE_IMG
 
     def set_state_ok(self):
-        self.status_light.source = self.LIGHT_ONLINE_IMG
+        pass # self.status_light.source = self.LIGHT_ONLINE_IMG
 
     def update_weather(self, instance):
+        return
         try:
             response = requests.get(
                 'http://127.0.0.1:10100/sensors/weather/read',
