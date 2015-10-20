@@ -4,20 +4,20 @@
         size: self.parent.size
         pos: self.parent.pos
 
-        canvas:
-            Color:
-                rgb: 0, 0, 0
-            Rectangle:
-                pos: self.pos
-                size: self.size
+        Image:
+            source: 'background.jpg'
+            size: self.size
+            pos: self.pos
 
         WeatherWidget:
             temperature_label: temperature_label
             humidity_label: humidity_label
             pressure_label: pressure_label
             recommendation_label: recommendation_label
+            status_light: status_light
             rain_rating: rain_rating
             icon: icon
+
             size_hint: 0.46, 0.46
             pos_hint: {'x':0.02, 'y':0.52}
 
@@ -87,6 +87,14 @@
                     size_hint: 1, 0.3
                     pos_hint: {'x':0, 'y':0}
                     text: 'n/a'
+
+                BlinkingImage:
+                    id: status_light
+                    pos_hint: {'x':0.3, 'y':0.75}
+                    size_hint: 0.2, 0.2
+                    allow_stretch: True
+                    source: 'light_green.png'
+
             FloatLayout:
                 size_hint: 0.8, 0.35
                 pos_hint: {'x':0.1, 'y':0.1}
@@ -131,6 +139,7 @@
 
 <SettingsScreen>:
     update_btn: update_btn
+    sensors_update_btn: sensors_update_btn
 
     FloatLayout:
         size: self.parent.size
@@ -142,6 +151,13 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
+
+        Button:
+            id: sensors_update_btn
+            size_hint: 0.9, 0.15
+            pos_hint: {'x':0.05, 'y':0.35}
+            text: 'Update Sensors'
+
         Button:
             id: update_btn
             size_hint: 0.9, 0.15

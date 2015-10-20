@@ -6,18 +6,31 @@ import requests
 from requests.exceptions import RequestException
 
 
+AVERAGE_PRESSURE = 1013.25  # bar
+
+
 class WeatherWidget(FloatLayout):
+    LIGHT_OFFLINE_IMG = 'light_red.png'
+    LIGHT_ONLINE_IMG = 'light_green.png'
+
     temperature_label = ObjectProperty(None)
     humidity_label = ObjectProperty(None)
     pressure_label = ObjectProperty(None)
     recommendation_label = ObjectProperty(None)
     rain_rating = ObjectProperty(None)
     icon = ObjectProperty(None)
+    status_light = ObjectProperty(None)
 
     def __init__(self, *args, **kwargs):
         super(WeatherWidget, self).__init__(*args, **kwargs)
         Clock.schedule_once(self.update_weather, timeout=1)
         Clock.schedule_interval(self.update_weather, timeout=10)
+
+    def set_state_error(self):
+        self.status_light.source = self.LIGHT_OFFLINE_IMG
+
+    def set_state_ok(self):
+        self.status_light.source = self.LIGHT_ONLINE_IMG
 
     def update_weather(self, instance):
         try:
@@ -26,18 +39,23 @@ class WeatherWidget(FloatLayout):
                 timeout=(0.05, 0.1),
             )
         except RequestException as ex:
-            self.icon.opacity = 0.2
+            self.set_state_error()
             return
 
         data = response.json()
 
         if data['status'] != 'ok':
-            self.icon.opacity = 0.2
+            self.set_state_error()
             return
 
         self.temperature_label.text = str(round(data['data']['temperature'])) + ' \u00b0C'
         self.humidity_label.text = str(round(data['data']['humidity'])) + ' %'
-        self.pressure_label.text = str(round(data['data']['pressure'])) + ' kPa'
+
+        delta_pressure = (data['data']['pressure'] - AVERAGE_PRESSURE) / data['data']['pressure'] * 100
+        self.pressure_label.text = '%s%0.2f %%' % (
+            '+' if delta_pressure > 0 else '-',
+            delta_pressure,
+        )
 
         rain_forecast_rating = data['data']['rain_forecast_rating']
         if rain_forecast_rating > 2.0:
@@ -63,4 +81,6 @@ class WeatherWidget(FloatLayout):
 
         self.icon.source = data['data']['icon_url']
         self.icon.opacity = 1
+
+        self.set_state_ok()
 
