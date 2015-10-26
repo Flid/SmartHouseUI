@@ -1,118 +1,193 @@
 #:import WeatherWidget smart_house_ui.WeatherWidget
+#:set sidebar_width 64
+#:set sidebar_height 417
+#:set panel_width 321
+#:set panel_height 199
+#:set shadow_horizontal 9
+#:set shadow_vertical 11
+#:set clearance_size 20
 
-<Sidebar@RelativeLayout>:
+
+<B@Widget>:
+    canvas.after:
+        Line:
+            rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+            dash_offset: 5
+            dash_length: 3
+
+
+<Label>:
+    font_name: 'static/AleksandraC.ttf'
+
+
+<Sidebar@RelativeLayout+SidebarWidget>:
     size_hint: None, None
-    size: 64, 417
-    pos: 0, (480 - 417) / 2
+    size: 64, sidebar_height
+    pos: 0, (480 - sidebar_height) / 2
+
+    settings_btn: settings_btn
+    quit_btn: quit_btn
+
+    canvas:
+        Rectangle:
+            size: 99, sidebar_height+shadow_vertical
+            pos: 0, -shadow_vertical
+            source: 'static/sidebar.png'
+
+    Button:
+        id: settings_btn
+        background_normal: 'static/settings_btn.png'
+        background_down: 'static/settings_btn.png'
+        size_hint: None, None
+        size: 50, 50
+        pos: 7, sidebar_height - 50 - 10
+        on_press: self.parent.on_btn_settings()
+
+    Button:
+        id: quit_btn
+        background_normal: 'static/quit_btn.png'
+        background_down: 'static/quit_btn.png'
+        size_hint: None, None
+        size: 50, 50
+        pos: 7, 10
+        on_press: self.parent.on_btn_quit()
+
+<Panel@FloatLayout>:
+    size_hint: None, None
+    size: panel_width, panel_height
+
+    canvas:
+        Rectangle:
+            source: 'static/panel.png'
+            size: panel_width+shadow_horizontal, panel_height+shadow_vertical
+            pos: self.x, self.y-shadow_vertical
+
+
+<WeatherPanel@Panel+WeatherWidget>:
+    pos: 0, panel_height+clearance_size
+
+    temp_out: temp_out
+    temp_in: temp_in
+    humidity_out: humidity_out
+    humidity_in: humidity_in
+    pressure: pressure
+    rain_forecast: rain_forecast
 
     Image:
-        size_hint: None, None
-        pos: 0, 417 - 428
-        size: 99, 428
-        source: 'static/sidebar.png'
+        source: 'static/weather/03d.png'
+        size_hint: 0.5, 0.7
+        pos_hint: {'top': 1, 'left': 0}
 
-    #canvas:
-    #    Rectangle:
-    #        size: self.size
-    #        pos: 0, 0
+    FloatLayout:
+        size_hint: 0.5, 0.25
+        pos_hint: {'x': 0.48, 'top': 0.95}
+
+        Image:
+            source: 'static/weather/therm_icon.png'
+            size_hint: 0.3, 1
+            pos_hint: {'x': 0.35, 'top': 1}
+
+        Label:
+            id: temp_out
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'x': 0, 'top': 1}
+            font_size: 40
+
+        Label:
+            id: temp_in
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'right': 1, 'top': 1}
+            font_size: 40
+
+    FloatLayout:
+        size_hint: 0.5, 0.2
+        pos_hint: {'x': 0.48, 'top': 0.7}
+
+        Image:
+            source: 'static/weather/humidity_icon.png'
+            size_hint: 0.3, 1
+            pos_hint: {'x': 0.35, 'top': 1}
+
+        Label:
+            id: humidity_out
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'x': 0, 'top': 1}
+            font_size: 30
+
+        Label:
+            id: humidity_in
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'right': 1, 'top': 1}
+            font_size: 30
+
+    Label:
+        id: pressure
+        text: 'Pressure: +0.0%'
+        size_hint: 0.5, 0.2
+        pos_hint: {'x': 0.48, 'top': 0.5}
+        font_size: 20
+
+    Label:
+        id: rain_forecast
+        text: 'Expecting: -------- (0.00)'
+        size_hint: 1, 0.3
+        pos_hint: {'x': 0, 'y': 0.05}
+        font_size: 20
+
+<MusicPanel@Panel>:
+    pos: panel_width+clearance_size, panel_height+clearance_size
 
 
-<WeatherPanel@WeatherWidget>:
-    size_hint: None, None
-    size: 321, 199
-    pos: 0, 199 + 20
-
-    Image:
-        size_hint: None, None
-        source: 'static/panel.png'
-        pos: 0, -11
-        size: 330, 210
-
-<MusicPanel@WeatherWidget>:
-    size_hint: None, None
-    size: 321, 199
-    pos: 321 + 20, 199 + 20
-
-    Image:
-        size_hint: None, None
-        source: 'static/panel.png'
-        pos: 0, -11
-        size: 330, 210
+<CalendarPanel@Panel>:
+    pos: panel_width+clearance_size, 0
 
 
-<CalendarPanel@WeatherWidget>:
-    size_hint: None, None
-    size: 321, 199
-    pos: 321 + 20, 0
-
-    Image:
-        size_hint: None, None
-        source: 'static/panel.png'
-        pos: 0, -11
-        size: 330, 210
-
-
-<OneMorePanel@WeatherWidget>:
-    size_hint: None, None
-    size: 321, 199
+<OneMorePanel@Panel>:
     pos: 0, 0
 
-    Image:
-        size_hint: None, None
-        source: 'static/panel.png'
-        pos: 0, -11
-        size: 330, 210
 
 <Panels@RelativeLayout>:
     size_hint: None, None
-    size: 800 - 64 - 37 * 2 , 417
-    pos: 64 + 37, (480 - 417) / 2
+    size: panel_width*2+clearance_size , sidebar_height
+    pos: sidebar_width + 37, (480 - sidebar_height) / 2
 
-    weather_panel: weather_panel
-    music_panel: music_panel
-    calendar_panel: calendar_panel
+    weather: weather
+    music: music
+    calendar: calendar
 
     WeatherPanel:
-        id: weather_panel
+        id: weather
 
     MusicPanel:
-        id: music_panel
+        id: music
 
     CalendarPanel:
-        id: calendar_panel
+        id: calendar
 
     OneMorePanel:
-        id: one_more_panel
+        id: one_more
 
 
 <MainScreen>:
-    FloatLayout:
+    RelativeLayout:
         size: self.parent.size
         pos: self.parent.pos
 
-        Image:
-            source: 'static/background.png'
-            size: self.size
-            pos: self.pos
+        canvas:
+            Rectangle:
+                source: 'static/background.png'
+                size: self.size
+                pos: self.pos
 
         Sidebar:
             id: sidebar
 
         Panels:
             id: panels
-
-        #Button:
-        #    size_hint: 0.1, 0.1
-        #    pos_hint: {'x':0, 'y':0}
-        #    text: 'Settings'
-        #    #on_press:
-        #    #    root.manager.transition.direction = 'left'
-        #    #    root.manager.current = 'settings'
-
-        #Button:
-        #    size_hint: 0.1, 0.1
-        #    pos_hint: {'x':0.9, 'y':0}
-        #    text: 'Quit'
 
 <SettingsScreen>:
     update_btn: update_btn

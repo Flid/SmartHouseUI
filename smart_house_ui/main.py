@@ -11,15 +11,6 @@ class MainScreen(Screen):
     pass
 
 
-class BlinkingImage(Image):
-    def __init__(self, *args, **kwargs):
-        super(BlinkingImage, self).__init__(*args, **kwargs)
-
-        anim = Animation(opacity=0.4) + Animation(opacity=0.8)
-        anim.repeat = True
-        anim.start(self)
-
-
 class SettingsScreen(Screen):
     update_btn = ObjectProperty(None)
     sensors_update_btn = ObjectProperty(None)
