@@ -7,8 +7,11 @@ from kivy.animation import Animation
 from smart_house_ui.utils import self_update, sensors_update
 
 
+
+
 class MainScreen(Screen):
-    pass
+    sidebar = ObjectProperty(None)
+    panels = ObjectProperty(None)
 
 
 class SettingsScreen(Screen):
@@ -40,3 +43,7 @@ class SmartHouseApp(App):
 
         self.settings_screen.setup()
         return self.sm
+
+    def on_stop(self):
+        print('Stopping app...')
+        self.main_screen.panels.music.release()

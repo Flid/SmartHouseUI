@@ -140,8 +140,27 @@
         pos_hint: {'x': 0, 'y': 0.05}
         font_size: 20
 
-<MusicPanel@Panel>:
+
+<MusicPanel@Panel+PlayerWidget>:
     pos: panel_width+clearance_size, panel_height+clearance_size
+
+    play_btn: play_btn
+    progress_bar: progress_bar
+
+    Button:
+        id: play_btn
+        size_hint: 1, 0.5
+        pos_hint: {'x': 0, 'y': 0.5}
+        text: 'play'
+        on_press: self.parent.on_play_press()
+
+    ProgressBar:
+        id: progress_bar
+        max: 1
+        value: 0
+        size_hint: 1, 0.5
+        pos_hint: {'x': 0, 'y': 0}
+        text: 'pos'
 
 
 <CalendarPanel@Panel>:
@@ -153,6 +172,10 @@
 
 
 <Panels@RelativeLayout>:
+    weather: weather
+    music: music
+    calendar: calendar
+
     size_hint: None, None
     size: panel_width*2+clearance_size , sidebar_height
     pos: sidebar_width + 37, (480 - sidebar_height) / 2
@@ -175,6 +198,9 @@
 
 
 <MainScreen>:
+    sidebar: sidebar
+    panels: panels
+
     RelativeLayout:
         size: self.parent.size
         pos: self.parent.pos
