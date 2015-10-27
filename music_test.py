@@ -20,32 +20,63 @@ class AudioPlayer(object):
     }
 
     def __init__(self):
-        self._player = vlc.MediaListPlayer()
+        self._instance = vlc.Instance()
+
+        self._track_list = []
+        self._current_track_id = 0
+
+    def _reset_player(self):
+        self._player = self._instance.media_player_new()
+
         self._event_manager = self._player.event_manager()
 
         self.bind_event(
-            EventType.MediaPlayerPositionChanged,
+            EventType.MediaPlayerEndReached,
             self._on_track_end_reached,
         )
 
-        self._media_list = vlc.MediaList()
-
     def _get_media(self, filename):
-        m = vlc.Media(filename)
+        m = self._instance.media_new(filename)
         m.parse()
         if not m.get_duration():
             log.warning('Corrupted file: %s' % filename)
             return
         return m
 
-    def play(self, track_id=0):
+    def _normalize_track_id(self, val):
+        if val is None:
+            return 0
+
+        if val >= len(self._track_list):
+            return len(self._track_list) - 1
+
+        if val < 0:
+            return 0
+
+        return val
+
+    def play(self, track_id=None):
+        self._current_track_id = self._normalize_track_id(track_id)
+        print('Starting to play track %s' % self._current_track_id)
+
+        self._reset_player()
+
+        self._player.set_media(
+            self._get_media(self._track_list[self._current_track_id]),
+        )
         self._player.play()
+
+    def next(self):
+        print('Starting the next track')
+        self.play(
+            (self._current_track_id + 1) % len(self._track_list),
+        )
 
     def stop(self):
         self._player.stop()
 
     def set_position(self, pos):
-        self._player.get_media_player().set_position(pos)
+        self._player.set_position(pos)
 
     def load_directory(self, path):
 
@@ -56,13 +87,12 @@ class AudioPlayer(object):
                 if not re_audio_name.match(f):
                     continue
 
-                media = self._get_media(os.path.join(path, f))
+                fname = os.path.join(path, f)
+                media = self._get_media(fname)
                 if not media:
                     continue
 
-                self._media_list.add_media(media)
-
-        self._player.set_media_list(self._media_list)
+                self._track_list.append(fname)
 
     def __getattr__(self, item):
         if item in self._PROXY_METHODS:
@@ -79,31 +109,31 @@ class AudioPlayer(object):
         )
 
     def _on_track_end_reached(self, event):
-        pass
-
-
-def pos_changed_cb(event):
-    print('Positition', event.u.new_position)
-
+        print('Track end reached')
+        self.next()
 
 
 p = AudioPlayer()
-p.bind_event(EventType.MediaPlayerPositionChanged, pos_changed_cb)
 
 
 p.load_directory('/home/flid/hobby/git/SmartHouseUI')
 
-p.play()
-p.set_position(0.99)
+p.play(0)
 
-for _ in range(2):
-    print(p.get_position())
-    sleep(1)
+sleep(1)
 
 p.set_position(0.99)
-
-print 'l', p.get_length() / 1000.0
 
 sleep(5)
 
+print('1')
 
+p.set_position(0.99)
+
+sleep(5)
+
+print('2')
+
+p.set_position(0.99)
+
+sleep(5)
