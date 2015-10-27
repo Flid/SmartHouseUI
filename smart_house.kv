@@ -66,6 +66,7 @@
 <WeatherPanel@Panel+WeatherWidget>:
     pos: 0, panel_height+clearance_size
 
+    weather_icon: weather_icon
     temp_out: temp_out
     temp_in: temp_in
     humidity_out: humidity_out
@@ -74,7 +75,8 @@
     rain_forecast: rain_forecast
 
     Image:
-        source: 'static/weather/03d.png'
+        id: weather_icon
+        source: 'static/weather/03.png'
         size_hint: 0.5, 0.7
         pos_hint: {'top': 1, 'left': 0}
 
