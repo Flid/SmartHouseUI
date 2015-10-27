@@ -243,6 +243,7 @@ def _Cfunction(name, flags, errcheck, *types):
         else:
             _Globals[name] = f
         return f
+
     raise NameError('no function %r' % (name,))
 
 def _Cobject(cls, ctype):
