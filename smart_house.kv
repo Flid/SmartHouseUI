@@ -141,27 +141,93 @@
         font_size: 20
 
 
+<ImageButton@Image+ButtonBehavior>:
+    # pass
+
 <MusicPanel@Panel+PlayerWidget>:
     pos: panel_width+clearance_size, panel_height+clearance_size
 
     play_btn: play_btn
     progress_bar: progress_bar
 
-    Button:
-        id: play_btn
-        size_hint: 1, 0.5
-        pos_hint: {'x': 0, 'y': 0.5}
-        text: 'play'
-        on_press: self.parent.on_play_press()
+    FloatLayout:
+        size_hint: 1, 0.15
+        pos_hint: {'x': 0, 'top': 0.95}
 
-    ProgressBar:
-        id: progress_bar
-        max: 1
-        value: 0
-        size_hint: 1, 0.5
-        pos_hint: {'x': 0, 'y': 0}
-        text: 'pos'
+        ImageButton:
+            source: 'static/music/shuffle.png'
+            size_hint: 0.15, 1
+            pos_hint: {'x': 0.2, 'y': 0}
 
+        ImageButton:
+            source: 'static/music/repeat.png'
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0.05, 'y': 0}
+
+        ImageButton:
+            source: 'static/music/dropdown.png'
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0.75, 'y': 0}
+
+    FloatLayout:
+        size_hint: 1, 0.25
+        pos_hint: {'x': 0, 'top': 0.8}
+
+        Label:
+            text: 'Track Name'
+            size_hint: 1, 0.55
+            pos_hint: {'x': 0, 'y': 0.45}
+            font_size: 20
+
+        Label:
+            text: 'Track Album'
+            size_hint: 1, 0.45
+            pos_hint: {'x': 0, 'y': 0}
+            font_size: 15
+
+    FloatLayout:
+        size_hint: 1, 0.15
+        pos_hint: {'x': 0, 'y': 0.4}
+
+        Label:
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0.05, 'y': 0}
+            text: '1:23'
+
+        Label:
+            size_hint: 0.2, 1
+            pos_hint: {'right': 0.95, 'y': 0}
+            text: '3:45'
+
+        ProgressBar:
+            id: progress_bar
+            size_hint: 0.5, 1
+            pos_hint: {'x': 0.25, 'y': 0}
+            max: 1
+            value: 0
+
+    FloatLayout:
+        size_hint: 1, 0.35
+        pos_hint: {'x': 0, 'y': 0.05}
+
+        ImageButton:
+            id: play_btn
+            source: 'static/music/play.png'
+            size_hint: 0.5, 1
+            pos_hint: {'x': 0.25, 'y': 0}
+            on_press: self.parent.on_play_press()
+
+        ImageButton:
+            id: prev_btn
+            source: 'static/music/prev.png'
+            size_hint: 0.25, 0.7
+            pos_hint: {'x': 0.1, 'y': 0.15}
+
+        ImageButton:
+            id: next_btn
+            source: 'static/music/next.png'
+            size_hint: 0.25, 0.7
+            pos_hint: {'x': 0.65, 'y': 0.15}
 
 <CalendarPanel@Panel>:
     pos: panel_width+clearance_size, 0

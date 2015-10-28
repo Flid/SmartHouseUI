@@ -1,6 +1,7 @@
 from logging.config import dictConfig
+import os
 
-dictConfig({
+LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -11,10 +12,6 @@ dictConfig({
     'handlers': {
         'default': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'midnight',
-            'backupCount': 7,
-            'filename': '/var/log/pi/smart_house_ui.log',
             'formatter': 'standard',
         },
     },
@@ -35,7 +32,21 @@ dictConfig({
             'propagate': False,
         },
     }
-})
+}
+
+if os.path.isdir('/var/log/'):
+    LOGGING['handlers']['default'].update({
+        'class': 'logging.handlers.TimedRotatingFileHandler',
+        'when': 'midnight',
+        'backupCount': 7,
+        'filename': '/var/log/pi/smart_house_ui.log',
+    })
+else:
+    LOGGING['handlers']['default'].update({
+        'class': 'logging.StreamHandler',
+    })
+
+dictConfig(LOGGING)
 
 from smart_house_ui.main import SmartHouseApp
 
