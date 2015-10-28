@@ -2,18 +2,21 @@ import os
 import re
 import logging
 
-from pyglet.media import (
-    Player as _Player,
-    load as load_track,
-    MediaException,
-)
 from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
 
-log = logging.getLogger(__name__)
 
+try:
+    import vlc
+    FAKE_VLC = False
+except OSError:
+    import mock
+    vlc = mock.Mock()
+    FAKE_VLC = True
+
+log = logging.getLogger(__name__)
 
 class TrackList(object):
     _re_audio_name = re.compile('^.*\.(mp3|wav|ogg)$', re.IGNORECASE)
@@ -24,21 +27,22 @@ class TrackList(object):
     def reset(self):
         self._tracks = []
 
-    def _get_track_info(self, path):
-        src = load_track(path)
+    def _get_track_info(self, path, media):
         return {
             'path': path,
-            'duration': src.duration,
+            'duration': media.get_duration(),
         }
 
     def add(self, filename):
-        print('Loading track from %s...' % filename)
-        try:
-            self._tracks.append(self._get_track_info(filename))
-            return True
-        except MediaException:
-            print('Failed to load track.')
-            return False
+        log.debug('Loading track from %s...' % filename)
+        media = self._load_media(filename)
+        if not media:
+            log.warning('Failed to load track.')
+            return
+
+        self._tracks.append(
+            self._get_track_info(filename, media),
+        )
 
     def add_directory(self, path):
         self._tracks = []
@@ -50,14 +54,25 @@ class TrackList(object):
 
                 self.add(os.path.join(path, f))
 
-    def get_source(self, track_id):
-        return load_track(self._tracks[track_id]['path'])
+    def _load_media(self, filename):
+        m = vlc.Media(filename)
+        m.parse()
+        if not m.get_duration():
+            log.warning('Corrupted file: %s' % filename)
+            return
+        return m
+
+    def get_media(self, track_id):
+        return self._load_media(self._tracks[track_id]['path'])
 
     def count(self):
         return len(self._tracks) if self._tracks else 0
 
     def get_info(self, track_id):
-        return dict(self._tracks[track_id])
+        try:
+            return dict(self._tracks[track_id])
+        except IndexError:
+            return
 
 
 class AudioPlayer(EventDispatcher):
@@ -68,49 +83,55 @@ class AudioPlayer(EventDispatcher):
     def __init__(self):
         self._track_list = TrackList()
         self._track_source = None
-        self._player = None
+        self._init_player()
         self._current_track_id = 0
-        self._has_manual_position_changes = False
 
-        Clock.schedule_interval(self._update_properties, 0.01)
+    def _init_player(self):
+        self._instance = vlc.Instance()
+        self._player = self._instance.media_player_new()
+        self._event_manager = self._player.event_manager()
+        self._bind_event(
+            vlc.EventType.MediaPlayerEndReached,
+            self._on_track_end_reached,
+        )
+        self._bind_event(
+            vlc.EventType.MediaPlayerPositionChanged,
+            self._on_position_changed,
+        )
 
-    def _update_properties(self, *args):
+        self._media = None
 
-        if self._player is None:
-            self.position = 0
-            self.playing = False
-        else:
-            print(self._player.time)
-            self.playing = self._player.time != self.position
-            self.position = self._player.time
+    def _on_track_end_reached(self, event):
+        log.debug('Track end reached')
+        Clock.schedule_once(lambda dt: self.next())
 
-            if not self._has_manual_position_changes and self.position == 0:
-                self._player.delete()
-                self._player = None
-                self._on_track_end()
-
-        self._has_manual_position_changes = False
-
-    def _on_track_end(self):
-        print('Track end reached')
-        self.next()
+    def _on_position_changed(self, event):
+        log.debug('Position: %s' % event.u.new_position)
+        self.position = event.u.new_position
 
     def _normalize_track_id(self, val):
         return val % self._track_list.count()
 
+    def _bind_event(self, event, callback_func, *args):
+        self._event_manager.event_attach(
+            event,
+            callback_func,
+            *args
+        )
+
     def play(self, track_id=0):
+        if self._media is not None:
+            self._player.stop()
+            self._media.release()
+
         self._current_track_id = self._normalize_track_id(track_id)
-        print('Playing track %s' % self._current_track_id)
 
-        self._track_source = self._track_list.get_source(self._current_track_id)
-
-        self._has_manual_position_changes = False
-        self._player = _Player()
-        self._player.queue(self._track_source)
+        self._media = self._track_list.get_media(self._current_track_id)
+        self._player.set_media(self._media)
         self._player.play()
 
     def next(self):
-        print('Starting the next track')
+        log.debug('Starting the next track')
         self.play(self._current_track_id + 1)
 
     def stop(self):
@@ -138,16 +159,23 @@ class PlayerWidget(Widget):
 
     def __init__(self, *args, **kwargs):
         super(PlayerWidget, self).__init__(*args, **kwargs)
+        if FAKE_VLC:
+            return
+
         self._audio_player = AudioPlayer()
+
         self._audio_player.bind(position=self.on_position_change)
 
     def release(self):
-        print('Deleting PlayerWidget')
+        log.info('Deleting PlayerWidget')
+
+        if FAKE_VLC:
+            return
+
         self._audio_player.delete()
 
     def on_position_change(self, instance, value):
-        duration = self._audio_player.get_current_track_info()['duration']
-        self.progress_bar.value = self._audio_player.position/duration
+        self.progress_bar.value = value
 
     def on_play_press(self):
         self._audio_player.load_directory('.')
