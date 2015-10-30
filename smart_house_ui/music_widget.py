@@ -2,10 +2,16 @@ import os
 import re
 import logging
 
-from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty
+from kivy.properties import (
+    NumericProperty,
+    ObjectProperty,
+    BooleanProperty,
+    AliasProperty,
+)
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
+from kivy.graphics import Rectangle, Color
 
 
 try:
@@ -180,3 +186,62 @@ class PlayerWidget(Widget):
     def on_play_press(self):
         self._audio_player.load_directory('.')
         self._audio_player.play(0)
+
+
+class MusicProgressBar(Widget):
+    dot = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        self._value = -1
+        super(MusicProgressBar, self).__init__(**kwargs)
+
+    def _get_value(self):
+        return self._value
+
+    def _set_value(self, value):
+        value = max(0, min(self.max, value))
+        if value == self._value:
+            return False
+
+        if self.dot is None:
+            return True
+
+        self._value = value
+
+        self.dot.pos = [
+            self.x + self.width * self.value_normalized - self.dot.width/2,
+            self.y + self.height / 2 - self.dot.height/2,
+        ]
+
+        return True
+
+    value = AliasProperty(_get_value, _set_value)
+
+    def get_norm_value(self):
+        d = self.max
+        if d == 0:
+            return 0
+        return self.value / float(d)
+
+    def set_norm_value(self, value):
+        self.value = value * self.max
+
+    value_normalized = AliasProperty(
+        get_norm_value,
+        set_norm_value,
+        bind=('value', 'max'),
+    )
+
+    max = NumericProperty(100.)
+
+    def _process_touch(self, touch):
+        if not self.collide_point(*touch.pos):
+            return
+        x = touch.pos[0] - self.pos[0]
+        self.value_normalized = x / self.width
+
+    def on_touch_down(self, touch):
+        self._process_touch(touch)
+
+    def on_touch_move(self, touch):
+        self._process_touch(touch)
