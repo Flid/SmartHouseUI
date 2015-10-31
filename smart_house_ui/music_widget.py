@@ -90,9 +90,10 @@ class TrackList(object):
 
 
 class AudioPlayer(EventDispatcher):
-    position = NumericProperty(0)
     is_playing = BooleanProperty(False)
     track_id = NumericProperty(-1)
+    position = NumericProperty(0)
+    volume = NumericProperty(0.5)
 
     def __init__(self):
         self._track_list = TrackList()
@@ -110,6 +111,10 @@ class AudioPlayer(EventDispatcher):
             self._on_position_changed,
         )
         self._bind_event(
+            vlc.EventType.MediaPlayerAudioVolume,
+            self._on_volume_changed,
+        )
+        self._bind_event(
             vlc.EventType.MediaPlayerEndReached,
             self._on_track_end_reached,
         )
@@ -123,6 +128,7 @@ class AudioPlayer(EventDispatcher):
         )
 
         self._media = None
+        self.set_volume(self.volume)
 
     def _on_track_end_reached(self, event):
         log.debug('Track end reached')
@@ -138,6 +144,15 @@ class AudioPlayer(EventDispatcher):
 
     def _on_position_changed(self, event):
         self.position = event.u.new_position
+
+    def set_position(self, value):
+        self._player.set_position(value)
+
+    def _on_volume_changed(self, event):
+        self.volume = event.u.new_volume / 100.
+
+    def set_volume(self, value):
+        self._player.audio_set_volume(int(value * 100))
 
     def _normalize_track_id(self, val):
         return val % self.tracks_count
@@ -201,12 +216,6 @@ class AudioPlayer(EventDispatcher):
 
         self._player.pause()
 
-    def set_position(self, value):
-        if self.tracks_count == 0:
-            return
-
-        self._player.set_position(value)
-
     def load_directory(self, path):
         log.debug('Loading the track list from `%s`' % path)
         self._track_list.reset()
@@ -232,9 +241,9 @@ class PlayerWidget(Widget):
         if FAKE_VLC:
             return
 
-        self._audio_player = AudioPlayer()
+        self.audio_player = AudioPlayer()
 
-        self._audio_player.bind(
+        self.audio_player.bind(
             position=self.on_position_change,
             track_id=self.on_track_id_change,
             is_playing=self.on_is_playing_changed,
@@ -252,10 +261,10 @@ class PlayerWidget(Widget):
         if FAKE_VLC:
             return
 
-        self._audio_player.delete()
+        self.audio_player.delete()
 
     def get_track_info(self):
-        return self._audio_player.get_current_track_info()
+        return self.audio_player.get_current_track_info()
 
     def on_position_change(self, instance, value):
         self.progress_bar.value = value
@@ -285,31 +294,22 @@ class PlayerWidget(Widget):
         else:
             self.play_btn.source = 'static/music/play.png'
 
-    def change_position(self, value):
-        log.debug('Manually setting position to %s' % value)
-        self._audio_player.set_position(value)
-
     def on_play_press(self):
-        if self._audio_player.tracks_count == 0:
-            self._audio_player.load_directory('.')
+        if self.audio_player.tracks_count == 0:
+            self.audio_player.load_directory('.')
 
-        if self._audio_player.is_playing:
-            self._audio_player.pause()
+        if self.audio_player.is_playing:
+            self.audio_player.pause()
         else:
-            self._audio_player.play()
-
-    def on_next_press(self):
-        self._audio_player.next()
-
-    def on_prev_press(self):
-        self._audio_player.prev()
+            self.audio_player.play()
 
 
-class MusicProgressBar(Widget):
-    def __init__(self, **kwargs):
+class ProgressBarBehavior(object):
+    vertical = False
+
+    def init(self, **kwargs):
         self._value = -1
         self.register_event_type('on_manual_change')
-        super(MusicProgressBar, self).__init__(**kwargs)
 
     def on_vertical(self, *args):
         self._rotation.origin=self.center
@@ -326,16 +326,7 @@ class MusicProgressBar(Widget):
         if value == self._value:
             return False
 
-        if self.dot is None:
-            return True
-
         self._value = value
-
-        self.dot.pos = [
-            self.x + self.width * self.value_normalized - self.dot.width/2,
-            self.y + self.height / 2 - self.dot.height/2,
-        ]
-
         return True
 
     value = AliasProperty(_get_value, _set_value)
@@ -361,8 +352,12 @@ class MusicProgressBar(Widget):
         if not self.collide_point(*touch.pos):
             return
 
-        x = touch.x - self.x
-        self.value_normalized = x / self.width
+        if self.vertical:
+            y = touch.y - self.y
+            self.value_normalized = y / self.height
+        else:
+            x = touch.x - self.x
+            self.value_normalized = x / self.width
 
         self.dispatch('on_manual_change')
 
@@ -375,13 +370,15 @@ class MusicProgressBar(Widget):
     def on_manual_change(self):
         pass
 
+class MusicProgressBar(ProgressBarBehavior, Widget):
+    def __init__(self, *args, **kwargs):
+        super(MusicProgressBar, self).__init__(*args, **kwargs)
+        self.init()
 
-class MusicVerticalProgressBar(MusicProgressBar):
-     def _process_touch(self, touch):
-        if not self.collide_point(*touch.pos):
-            return
 
-        y = touch.y - self.y
-        self.value_normalized = y / self.height
+class MusicVerticalProgressBar(ProgressBarBehavior, Widget):
+    vertical = True
 
-        self.dispatch('on_manual_change')
+    def __init__(self, *args, **kwargs):
+        super(MusicVerticalProgressBar, self).__init__(*args, **kwargs)
+        self.init()
