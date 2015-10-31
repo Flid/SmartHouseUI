@@ -47,6 +47,33 @@
         pos: self.parent.x -7, self.parent.y + self.parent.height/2 - 7
 
 
+<MusicVerticalProgressBar>:
+    value: 0
+
+    dot: dot
+
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+
+        BorderImage:
+            border: (12, 12, 12, 12)
+            pos: self.center_x - 12, self.y
+            size: 24, self.height
+            source: 'atlas://data/images/defaulttheme/progressbar_background'
+        BorderImage:
+            border: [int(min(self.width * (self.value / float(self.max)) if self.max else 0, 12))] * 4
+            pos: self.x, self.center_y - 12
+            size: self.width * (self.value / float(self.max)) if self.max else 0, 24
+            source: 'static/music/progressbar.png'
+
+    Image:
+        id: dot
+        source: 'static/music/progress_bar_dot.png'
+        size: 14, 14
+        pos: self.parent.x -7, self.parent.y + self.parent.height/2 - 7
+
+
 <Sidebar@RelativeLayout+SidebarWidget>:
     size_hint: None, None
     size: 64, sidebar_height
@@ -172,6 +199,10 @@
 
     play_btn: play_btn
     progress_bar: progress_bar
+    current_time: current_time
+    total_time: total_time
+    artist: artist
+    title: title
 
     FloatLayout:
         size_hint: 1, 0.15
@@ -193,34 +224,38 @@
             pos_hint: {'x': 0.75, 'y': 0}
 
     FloatLayout:
-        size_hint: 1, 0.25
+        size_hint: 0.9, 0.25
         pos_hint: {'x': 0, 'top': 0.8}
 
         Label:
-            text: 'Track Name'
+            id: title
+            text: '--//--'
             size_hint: 1, 0.55
             pos_hint: {'x': 0, 'y': 0.45}
             font_size: 20
 
         Label:
-            text: 'Track Album'
+            id: artist
+            text: '--'
             size_hint: 1, 0.45
             pos_hint: {'x': 0, 'y': 0}
             font_size: 15
 
     FloatLayout:
-        size_hint: 1, 0.15
+        size_hint: 0.9, 0.15
         pos_hint: {'x': 0, 'y': 0.4}
 
         Label:
+            id: current_time
             size_hint: 0.2, 1
             pos_hint: {'x': 0.05, 'y': 0}
-            text: '1:23'
+            text: '0:00'
 
         Label:
+            id: total_time
             size_hint: 0.2, 1
             pos_hint: {'right': 0.95, 'y': 0}
-            text: '3:45'
+            text: '0:00'
 
         MusicProgressBar:
             id: progress_bar
@@ -228,6 +263,20 @@
             pos_hint: {'x': 0.25, 'y': 0}
             max: 1
             value: 0
+            on_manual_change: self.parent.parent.change_position(self.value)
+
+    MusicVerticalProgressBar:
+        id: volume
+        max: 1
+        value: 0
+        size_hint: 0.1, 0.8
+        pos_hint: {'x': 0.9, 'y': 0}
+
+        canvas.after:
+            Line:
+                rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+                dash_offset: 5
+                dash_length: 3
 
     FloatLayout:
         size_hint: 1, 0.35
@@ -241,16 +290,24 @@
             on_press: self.parent.parent.on_play_press()
 
         ImageButton:
+            # Hack to pre-load the texture from file
+            source: 'static/music/pause.png'
+            size_hint: 0, 0
+            pos: -1000, -1000
+
+        ImageButton:
             id: prev_btn
             source: 'static/music/prev.png'
             size_hint: 0.25, 0.7
             pos_hint: {'x': 0.1, 'y': 0.15}
+            on_press: self.parent.parent.on_prev_press()
 
         ImageButton:
             id: next_btn
             source: 'static/music/next.png'
             size_hint: 0.25, 0.7
             pos_hint: {'x': 0.65, 'y': 0.15}
+            on_press: self.parent.parent.on_next_press()
 
 
 <CalendarPanel@Panel>:

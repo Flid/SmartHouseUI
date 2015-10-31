@@ -12,6 +12,11 @@ from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
 from kivy.graphics import Rectangle, Color
+from kivy.graphics.context_instructions import (
+    PushMatrix,
+    PopMatrix,
+    Rotate,
+)
 
 
 try:
@@ -23,6 +28,7 @@ except OSError:
     FAKE_VLC = True
 
 log = logging.getLogger(__name__)
+
 
 class TrackList(object):
     _re_audio_name = re.compile('^.*\.(mp3|wav|ogg)$', re.IGNORECASE)
@@ -37,6 +43,8 @@ class TrackList(object):
         return {
             'path': path,
             'duration': media.get_duration(),
+            'title': media.get_meta(vlc.Meta.Title) or os.path.basename(path),
+            'artist': media.get_meta(vlc.Meta.Artist) or 'Artist Unknown',
         }
 
     def add(self, filename):
@@ -83,26 +91,35 @@ class TrackList(object):
 
 class AudioPlayer(EventDispatcher):
     position = NumericProperty(0)
-    playing = BooleanProperty(False)
+    is_playing = BooleanProperty(False)
     track_id = NumericProperty(-1)
 
     def __init__(self):
         self._track_list = TrackList()
         self._track_source = None
         self._init_player()
-        self._current_track_id = 0
+        self.track_id = 0
 
     def _init_player(self):
         self._instance = vlc.Instance()
         self._player = self._instance.media_player_new()
         self._event_manager = self._player.event_manager()
+
+        self._bind_event(
+            vlc.EventType.MediaPlayerPositionChanged,
+            self._on_position_changed,
+        )
         self._bind_event(
             vlc.EventType.MediaPlayerEndReached,
             self._on_track_end_reached,
         )
         self._bind_event(
-            vlc.EventType.MediaPlayerPositionChanged,
-            self._on_position_changed,
+            vlc.EventType.MediaPlayerPaused,
+            self._on_paused,
+        )
+        self._bind_event(
+            vlc.EventType.MediaPlayerPlaying,
+            self._on_playing,
         )
 
         self._media = None
@@ -111,12 +128,19 @@ class AudioPlayer(EventDispatcher):
         log.debug('Track end reached')
         Clock.schedule_once(lambda dt: self.next())
 
+    def _on_paused(self, event):
+        log.debug('Paused event')
+        self.is_playing = False
+
+    def _on_playing(self, event):
+        log.debug('Playing event')
+        self.is_playing = True
+
     def _on_position_changed(self, event):
-        log.debug('Position: %s' % event.u.new_position)
         self.position = event.u.new_position
 
     def _normalize_track_id(self, val):
-        return val % self._track_list.count()
+        return val % self.tracks_count
 
     def _bind_event(self, event, callback_func, *args):
         self._event_manager.event_attach(
@@ -125,44 +149,84 @@ class AudioPlayer(EventDispatcher):
             *args
         )
 
-    def play(self, track_id=0):
-        if self._media is not None:
-            self._player.stop()
-            self._media.release()
+    def play(self, track_id=None):
+        if self.tracks_count == 0:
+            return
 
-        self._current_track_id = self._normalize_track_id(track_id)
+        if track_id is not None:
+            track_id = self._normalize_track_id(track_id)
 
-        self._media = self._track_list.get_media(self._current_track_id)
-        self._player.set_media(self._media)
+        log.debug('Starting to play track %s' % (track_id if track_id is not None else '<undef>'))
+
+        if self._media is None or track_id is not None:
+            if track_id is None:
+                track_id = 0
+            self.stop()
+            log.debug('Loading new media...')
+            self._media = self._track_list.get_media(track_id)
+            self._player.set_media(self._media)
+
         self._player.play()
 
+        if track_id is not None:
+            self.track_id = track_id
+
     def next(self):
+        if self.tracks_count == 0:
+            return
+
         log.debug('Starting the next track')
-        self.play(self._current_track_id + 1)
+        self.play(self.track_id + 1)
+
+    def prev(self):
+        if self.tracks_count == 0:
+            return
+
+        log.debug('Starting the prev track')
+        self.play(self.track_id - 1)
 
     def stop(self):
+        if self.tracks_count == 0:
+            return
+
+        log.debug('Stopping track...')
         self.pause()
-        self._player = None
+        if self._media:
+            self._media.release()
+            self._media = None
 
     def pause(self):
-        self._has_manual_position_changes = True
+        if self.tracks_count == 0:
+            return
+
         self._player.pause()
 
+    def set_position(self, value):
+        if self.tracks_count == 0:
+            return
+
+        self._player.set_position(value)
+
     def load_directory(self, path):
+        log.debug('Loading the track list from `%s`' % path)
         self._track_list.reset()
         self._track_list.add_directory(path)
 
     def get_current_track_info(self):
-        return self._track_list.get_info(self._current_track_id)
+        if self.tracks_count == 0:
+            return
+
+        return self._track_list.get_info(self.track_id)
 
     def delete(self):
         self._player.delete()
 
+    @property
+    def tracks_count(self):
+        return self._track_list.count()
+
 
 class PlayerWidget(Widget):
-    play_btn = ObjectProperty(None)
-    position_label = ObjectProperty(None)
-
     def __init__(self, *args, **kwargs):
         super(PlayerWidget, self).__init__(*args, **kwargs)
         if FAKE_VLC:
@@ -170,7 +234,17 @@ class PlayerWidget(Widget):
 
         self._audio_player = AudioPlayer()
 
-        self._audio_player.bind(position=self.on_position_change)
+        self._audio_player.bind(
+            position=self.on_position_change,
+            track_id=self.on_track_id_change,
+            is_playing=self.on_is_playing_changed,
+        )
+
+    def _set_label_time(self, label, value):
+        value /= 1000.
+        seconds = int(value % 60)
+        minutes = int(value / 60)
+        label.text = '%d:%0.2d' % (minutes, seconds)
 
     def release(self):
         log.info('Deleting PlayerWidget')
@@ -180,20 +254,69 @@ class PlayerWidget(Widget):
 
         self._audio_player.delete()
 
+    def get_track_info(self):
+        return self._audio_player.get_current_track_info()
+
     def on_position_change(self, instance, value):
         self.progress_bar.value = value
 
+        info = self.get_track_info()
+
+        self._set_label_time(
+            self.current_time,
+            info['duration'] * value if info else 0,
+        )
+
+    def on_track_id_change(self, instance, value):
+        info = self.get_track_info()
+
+        self._set_label_time(
+            self.total_time,
+            info['duration'] if info else None,
+        )
+        self._set_label_time(self.current_time, 0)
+        self.title.text = info['title'] if info else '--//--'
+        self.artist.text = info['artist'] if info else '--//--'
+
+    def on_is_playing_changed(self, instance, is_playing):
+        log.debug('is_playing is now %s' % is_playing)
+        if is_playing:
+            self.play_btn.source = 'static/music/pause.png'
+        else:
+            self.play_btn.source = 'static/music/play.png'
+
+    def change_position(self, value):
+        log.debug('Manually setting position to %s' % value)
+        self._audio_player.set_position(value)
+
     def on_play_press(self):
-        self._audio_player.load_directory('.')
-        self._audio_player.play(0)
+        if self._audio_player.tracks_count == 0:
+            self._audio_player.load_directory('.')
+
+        if self._audio_player.is_playing:
+            self._audio_player.pause()
+        else:
+            self._audio_player.play()
+
+    def on_next_press(self):
+        self._audio_player.next()
+
+    def on_prev_press(self):
+        self._audio_player.prev()
 
 
 class MusicProgressBar(Widget):
-    dot = ObjectProperty(None)
-
     def __init__(self, **kwargs):
         self._value = -1
+        self.register_event_type('on_manual_change')
         super(MusicProgressBar, self).__init__(**kwargs)
+
+    def on_vertical(self, *args):
+        self._rotation.origin=self.center
+        if self.vertical:
+            self._rotation.angle = 90
+        else:
+            self._rotation.angle = 0
 
     def _get_value(self):
         return self._value
@@ -237,11 +360,28 @@ class MusicProgressBar(Widget):
     def _process_touch(self, touch):
         if not self.collide_point(*touch.pos):
             return
-        x = touch.pos[0] - self.pos[0]
+
+        x = touch.x - self.x
         self.value_normalized = x / self.width
+
+        self.dispatch('on_manual_change')
 
     def on_touch_down(self, touch):
         self._process_touch(touch)
 
     def on_touch_move(self, touch):
         self._process_touch(touch)
+
+    def on_manual_change(self):
+        pass
+
+
+class MusicVerticalProgressBar(MusicProgressBar):
+     def _process_touch(self, touch):
+        if not self.collide_point(*touch.pos):
+            return
+
+        y = touch.y - self.y
+        self.value_normalized = y / self.height
+
+        self.dispatch('on_manual_change')
