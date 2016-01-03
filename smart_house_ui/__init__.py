@@ -7,6 +7,7 @@ from kivy.uix.button import ButtonBehavior
 
 from .weather_widget import WeatherWidget
 from .music_widget import PlayerWidget, MusicProgressBar
+from .sport_widget import SportWidget
 from .sidebar import SidebarWidget
 
 

@@ -317,8 +317,15 @@
     pos: panel_width+clearance_size, 0
 
 
-<OneMorePanel@Panel>:
+<SportPanel@Panel+SportWidget>:
     pos: 0, 0
+
+    Label:
+        id: total_distance
+        size_hint: 0.8, 0.2
+        pos_hint: {'x': 0.1, 'top': 0.9}
+        text: '--/--'
+        font_size: 20
 
 
 <Panels@RelativeLayout>:
@@ -343,8 +350,8 @@
     CalendarPanel:
         id: calendar
 
-    OneMorePanel:
-        id: one_more
+    SportPanel:
+        id: sport
 
 
 <MainScreen>:

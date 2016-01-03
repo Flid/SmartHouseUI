@@ -7,8 +7,6 @@ from kivy.animation import Animation
 from smart_house_ui.utils import self_update, sensors_update
 
 
-
-
 class MainScreen(Screen):
     sidebar = ObjectProperty(None)
     panels = ObjectProperty(None)
