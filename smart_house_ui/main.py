@@ -1,34 +1,27 @@
+import os
+
 from kivy.app import App
-from kivy.properties import ObjectProperty
-from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.uix.image import Image
-from kivy.animation import Animation
+from kivy.uix.screenmanager import ScreenManager
+from kivy.lang import Builder
+from kivy.logger import Logger as log
 
-from smart_house_ui.utils import self_update, sensors_update
-
-
-class MainScreen(Screen):
-    sidebar = ObjectProperty(None)
-    panels = ObjectProperty(None)
-
-
-class SettingsScreen(Screen):
-    update_btn = ObjectProperty(None)
-    sensors_update_btn = ObjectProperty(None)
-
-    def on_update_btn_press(self, instance):
-        self_update()
-
-    def on_sensors_update_btn_press(self, inst):
-        sensors_update()
-
-    def setup(self):
-        self.update_btn.bind(on_press=self.on_update_btn_press)
-        self.sensors_update_btn.bind(on_press=self.on_sensors_update_btn_press)
+from .screens import MainScreen, SettingsScreen
 
 
 class SmartHouseApp(App):
-    kv_file = 'smart_house.kv'
+    def load_kv(self, *args, **kwargs):
+        for f in [
+            'styles',
+            'debug',
+            'panels/base',
+            'panels/weather',
+            'panels/music',
+            'panels/sport',
+            'panels/calendar',
+            'screens/main',
+            'screens/settings',
+        ]:
+            Builder.load_file(os.path.join('smart_house_ui/uix', f + '.kv'))
 
     def build(self):
         self.sm = ScreenManager()
@@ -43,5 +36,5 @@ class SmartHouseApp(App):
         return self.sm
 
     def on_stop(self):
-        print('Stopping app...')
+        log.info('Stopping app...')
         self.main_screen.panels.music.release()

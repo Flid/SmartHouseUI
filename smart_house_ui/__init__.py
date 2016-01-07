@@ -5,23 +5,15 @@ from kivy.clock import Clock
 from kivy.uix.image import Image
 from kivy.uix.button import ButtonBehavior
 
-from .weather_widget import WeatherWidget
-from .music_widget import PlayerWidget, MusicProgressBar
-from .sport_widget import SportWidget
-from .sidebar import SidebarWidget
+from .panels import (
+    WeatherWidget,
+    PlayerWidget,
+    MusicProgressBar,
+    SidebarWidget,
+    SportWidget,
+)
 
-
-
-
-class TimeLabel(Label):
-    def __init__(self, *args, **kwargs):
-        super(TimeLabel, self).__init__(*args, **kwargs)
-        Clock.schedule_interval(self._update_time, 1)
-
-    def _update_time(self, *args):
-        self.text = datetime.now().strftime('%H:%M')
-
-
-class ImageButton(ButtonBehavior, Image):
-    def on_press(self):
-        print(1111111)
+from .controls import (
+    ImageButton,
+    TimeLabel,
+)

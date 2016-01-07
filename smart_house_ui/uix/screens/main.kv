@@ -1,0 +1,25 @@
+
+<MainScreen>:
+    sidebar: sidebar
+    panels: panels
+
+    RelativeLayout:
+        size: self.parent.size
+        pos: self.parent.pos
+
+        canvas:
+            Rectangle:
+                source: 'static/background.png'
+                size: self.size
+                pos: self.pos
+
+        Sidebar:
+            id: sidebar
+
+        Panels:
+            id: panels
+
+        TimeLabel:
+            size_hint: 0.05, 0.05
+            pos_hint: {'right': 0.985, 'y': 0.01}
+            font_size: 20

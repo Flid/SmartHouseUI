@@ -1,0 +1,75 @@
+#:set sidebar_width 64
+#:set sidebar_height 417
+#:set panel_width 321
+#:set panel_height 199
+#:set shadow_horizontal 9
+#:set shadow_vertical 11
+#:set clearance_size 20
+
+<Panel@FloatLayout>:
+    size_hint: None, None
+    size: panel_width, panel_height
+
+    canvas:
+        Rectangle:
+            source: 'static/panel.png'
+            size: panel_width+shadow_horizontal, panel_height+shadow_vertical
+            pos: self.x, self.y-shadow_vertical
+
+<Sidebar@RelativeLayout+SidebarWidget>:
+    size_hint: None, None
+    size: 64, sidebar_height
+    pos: 0, (480 - sidebar_height) / 2
+
+    settings_btn: settings_btn
+    quit_btn: quit_btn
+
+    canvas:
+        Rectangle:
+            size: 99, sidebar_height+shadow_vertical
+            pos: 0, -shadow_vertical
+            source: 'static/sidebar.png'
+
+    Button:
+        id: settings_btn
+        background_normal: 'static/settings_btn.png'
+        background_down: 'static/settings_btn.png'
+        size_hint: None, None
+        size: 50, 50
+        pos: 7, sidebar_height - 50 - 10
+        on_press: self.parent.on_btn_settings()
+
+    Button:
+        id: quit_btn
+        background_normal: 'static/quit_btn.png'
+        background_down: 'static/quit_btn.png'
+        size_hint: None, None
+        size: 50, 50
+        pos: 7, 10
+        on_press: self.parent.on_btn_quit()
+
+
+<Panels@RelativeLayout>:
+    weather: weather
+    music: music
+    calendar: calendar
+
+    size_hint: None, None
+    size: panel_width*2+clearance_size , sidebar_height
+    pos: sidebar_width + 37, (480 - sidebar_height) / 2
+
+    weather: weather
+    music: music
+    calendar: calendar
+
+    WeatherPanel:
+        id: weather
+
+    MusicPanel:
+        id: music
+
+    CalendarPanel:
+        id: calendar
+
+    SportPanel:
+        id: sport

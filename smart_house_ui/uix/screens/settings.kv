@@ -1,0 +1,35 @@
+
+<SettingsScreen>:
+    update_btn: update_btn
+    sensors_update_btn: sensors_update_btn
+
+    FloatLayout:
+        size: self.parent.size
+        pos: self.parent.pos
+
+        canvas:
+            Color:
+                rgb: 0, 0, 0
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Button:
+            id: sensors_update_btn
+            size_hint: 0.9, 0.15
+            pos_hint: {'x':0.05, 'y':0.35}
+            text: 'Update Sensors'
+
+        Button:
+            id: update_btn
+            size_hint: 0.9, 0.15
+            pos_hint: {'x':0.05, 'y':0.15}
+            text: 'Update System'
+
+        Button:
+            text: 'Back'
+            size_hint: 0.1, 0.1
+            pos_hint: {'x':0, 'y':0}
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'main'

@@ -1,0 +1,76 @@
+<WeatherPanel@Panel+WeatherWidget>:
+    pos: 0, panel_height+clearance_size
+
+    weather_icon: weather_icon
+    temp_out: temp_out
+    temp_in: temp_in
+    humidity_out: humidity_out
+    humidity_in: humidity_in
+    pressure: pressure
+    rain_forecast: rain_forecast
+
+    Image:
+        id: weather_icon
+        source: 'static/weather/03.png'
+        size_hint: 0.5, 0.7
+        pos_hint: {'top': 1, 'left': 0}
+
+    FloatLayout:
+        size_hint: 0.5, 0.25
+        pos_hint: {'x': 0.48, 'top': 0.95}
+
+        Image:
+            source: 'static/weather/therm_icon.png'
+            size_hint: 0.3, 1
+            pos_hint: {'x': 0.35, 'top': 1}
+
+        Label:
+            id: temp_out
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'x': 0, 'top': 1}
+            font_size: 40
+
+        Label:
+            id: temp_in
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'right': 1, 'top': 1}
+            font_size: 40
+
+    FloatLayout:
+        size_hint: 0.5, 0.2
+        pos_hint: {'x': 0.48, 'top': 0.7}
+
+        Image:
+            source: 'static/weather/humidity_icon.png'
+            size_hint: 0.3, 1
+            pos_hint: {'x': 0.35, 'top': 1}
+
+        Label:
+            id: humidity_out
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'x': 0, 'top': 1}
+            font_size: 30
+
+        Label:
+            id: humidity_in
+            text: '--'
+            size_hint: 0.35, 1
+            pos_hint: {'right': 1, 'top': 1}
+            font_size: 30
+
+    Label:
+        id: pressure
+        text: 'Pressure: +0.0%'
+        size_hint: 0.5, 0.2
+        pos_hint: {'x': 0.48, 'top': 0.5}
+        font_size: 20
+
+    Label:
+        id: rain_forecast
+        text: 'Expecting: -------- (0.00)'
+        size_hint: 1, 0.3
+        pos_hint: {'x': 0, 'y': 0.05}
+        font_size: 20
