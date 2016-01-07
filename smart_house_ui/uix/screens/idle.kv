@@ -1,0 +1,33 @@
+#:import ScreensaverDrawingArea smart_house_ui.screens.idle.ScreensaverDrawingArea
+#:import reschedule_screensaver smart_house_ui.screens.idle.reschedule_screensaver
+
+
+<ScreensaverDrawingArea>:
+    Label:
+        id: time_label
+        size_hint: 1, 0.3
+        pos_hint: {'x': 0, 'y': 0.4}
+        color: 0.5, 0.5, 0.5, 1
+        text: '--//--'
+        font_size: '90sp'
+
+    Label:
+        id: temperature_label
+        size_hint: 1, 0.2
+        pos_hint: {'x': 0, 'y': 0.1}
+        color: 0.5, 0.5, 0.5, 1
+        text: '--//--'
+        font_size: '50sp'
+        markup: True
+
+
+<IdleScreen>:
+    ScreensaverDrawingArea:
+        id: draw_area
+        size: self.parent.size
+        pos: self.parent.pos
+
+
+<Widget>:
+    on_touch_down:
+        reschedule_screensaver()

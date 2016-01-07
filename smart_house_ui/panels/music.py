@@ -370,6 +370,7 @@ class ProgressBarBehavior(object):
     def on_manual_change(self):
         pass
 
+
 class MusicProgressBar(ProgressBarBehavior, Widget):
     def __init__(self, *args, **kwargs):
         super(MusicProgressBar, self).__init__(*args, **kwargs)
