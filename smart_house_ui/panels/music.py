@@ -149,7 +149,7 @@ class AudioPlayer(EventDispatcher):
         self._player.set_position(value)
 
     def _on_volume_changed(self, event):
-        self.volume = event.u.new_volume / 100.
+        self.volume = self._player.audio_get_volume() / 100.
 
     def set_volume(self, value):
         self._player.audio_set_volume(int(value * 100))
@@ -217,6 +217,7 @@ class AudioPlayer(EventDispatcher):
         self._player.pause()
 
     def load_directory(self, path):
+        path = os.path.expanduser(path)
         log.debug('Loading the track list from `%s`' % path)
         self._track_list.reset()
         self._track_list.add_directory(path)
@@ -296,11 +297,12 @@ class PlayerWidget(Widget):
 
     def on_play_press(self):
         if self.audio_player.tracks_count == 0:
-            self.audio_player.load_directory('.')
+            self.audio_player.load_directory('~/Music/')
 
         if self.audio_player.is_playing:
             self.audio_player.pause()
         else:
+            self.on_track_id_change(None, None)
             self.audio_player.play()
 
 
