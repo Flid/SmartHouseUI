@@ -1,3 +1,4 @@
+#: import YAXIS_WIDTH smart_house_ui.panels.sport.YAXIS_WIDTH
 
 <SportPanel@Panel+SportWidget>:
     pos: 0, 0
@@ -8,3 +9,43 @@
         pos_hint: {'x': 0.1, 'top': 0.9}
         text: '--/--'
         font_size: 20
+        opacity: 0
+
+    StencilView:
+        pos: 0, 0
+        size: YAXIS_WIDTH, self.parent.height
+        size_hint: None, None
+
+        Image:
+            id: graph_vertical_axis
+            pos: 0, 0
+
+            canvas.after:
+                Line:
+                    rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+                    dash_offset: 5
+                    dash_length: 3
+
+    StencilView:
+        pos: YAXIS_WIDTH, 0
+        size: self.parent.width-YAXIS_WIDTH, self.parent.height
+        size_hint: None, None
+
+        ScatterLayout:
+            pos: 0, 0
+            size: self.parent.size
+
+            do_scale: False
+            do_rotate: False
+            do_translation_y: False
+
+            Image:
+                id: weight_graph
+                size: self.parent.width-20, self.parent.height
+
+                pos: 20, 0
+                canvas.after:
+                    Line:
+                        rectangle: self.x+1,self.y+1,self.width-1,self.height-1
+                        dash_offset: 5
+                        dash_length: 3
