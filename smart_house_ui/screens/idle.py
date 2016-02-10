@@ -14,7 +14,7 @@ from kivy.graphics import Color, Rectangle
 from .game_of_life import compute_next_step
 
 
-SCREENSAVER_TIMEOUT = 2
+SCREENSAVER_TIMEOUT = 60
 FIRST_GENERATION_DENSITY = 0.3
 RESTART_EVERY = 180  # seconds
 LOOP_DELAY = 0.4

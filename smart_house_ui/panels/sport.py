@@ -1,9 +1,10 @@
 import datetime
 import random
 import io
+from collections import OrderedDict
 
 import matplotlib.pyplot as plt
-from matplotlib.dates import DayLocator, DateFormatter, drange
+from matplotlib.dates import DayLocator, DateFormatter, drange, date2num
 from numpy import arange
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
@@ -12,11 +13,21 @@ from kivy.core.image import Image as CoreImage
 import requests
 from requests.exceptions import RequestException
 
+from smart_house_ui.db import get_weights, add_weight
+
 YAXIS_WIDTH = 34
 XAXIS_MIN_POS = -20
 
+SHOW_LAST_DAYS_COUNT = 30
+
+
+def px_to_inches(x):
+            return x / Metrics.dpi
+
 
 class SportWidget(Widget):
+    last_weight = None
+
     def __init__(self, *args, **kwargs):
         super(SportWidget, self).__init__(*args, **kwargs)
         Clock.schedule_once(self.update_data, timeout=1)
@@ -72,20 +83,29 @@ class SportWidget(Widget):
             instance.x = max_pos
 
     def generate_weight_graph_texture(self):
-        #from smart_house_ui.db import session, User
-        #print session.query(User).all()
+        start_dt = datetime.datetime.now() - datetime.timedelta(days=SHOW_LAST_DAYS_COUNT)
+        measurements = get_weights(start_dt)
 
-        date1 = datetime.datetime(2000, 2, 1)
-        date2 = datetime.datetime(2000, 4, 1)
-        delta = datetime.timedelta(days=1)
-        dates = list(drange(date1, date2, delta))
+        if measurements:
+            self.last_weight = measurements[-1].value
+
+        one_day = datetime.timedelta(days=1)
+        dates = list(drange(
+            start_dt.date() + one_day,
+            datetime.date.today() + one_day,
+            one_day,
+        ))
+
+        graph_points = OrderedDict((d, None) for d in dates)
+
+        for item in measurements:
+            graph_points[date2num(item.dt.date())] = item.value
 
         fig, ax = plt.subplots()
-        points = [None]*5 + [random.randint(85, 90) for x in dates[5:]]
 
         ax.plot_date(
             dates,
-            points,
+            list(graph_points.values()),
             '-o',
             alpha=1,
             mfc='white',
@@ -94,18 +114,15 @@ class SportWidget(Widget):
             lw=3,
         )
 
+        # Set graph appearance
         ax.set_xlim(dates[0] - 1, dates[-1] + 1)
         ax.set_ylim(75, 95)
-
-        ax.xaxis.set_major_locator(DayLocator(arange(0, len(dates), 5)))
-        ax.xaxis.set_minor_locator(DayLocator())
+        ax.xaxis.set_major_locator(DayLocator(interval=5))
         ax.xaxis.set_major_formatter(DateFormatter('%m-%d'))
+        ax.xaxis.set_minor_locator(DayLocator())
 
         ax.fmt_xdata = DateFormatter('%m-%d')
         fig.autofmt_xdate()
-
-        def px_to_inches(x):
-            return x / Metrics.dpi
 
         fig.set_size_inches(
             px_to_inches(len(dates) * 15),
@@ -121,7 +138,12 @@ class SportWidget(Widget):
         ax.spines['bottom'].set_color('w')
         ax.tick_params(colors='w', width=1, which='both')
 
+        # Print graph to memory and create kivy texture.
         buf = io.BytesIO()
         plt.savefig(buf, format='png', transparent=True, bbox_inches='tight')
         buf.seek(0)
         return CoreImage(buf, ext='png').texture
+
+    def save_weight_value(self, value):
+        add_weight(value)
+        self.set_graph()
