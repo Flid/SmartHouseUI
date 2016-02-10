@@ -1,3 +1,6 @@
+import pyximport
+pyximport.install()
+
 import os
 
 from kivy.app import App

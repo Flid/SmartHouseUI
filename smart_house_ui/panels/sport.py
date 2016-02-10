@@ -1,16 +1,14 @@
 import datetime
 import random
 import io
-from PIL import Image
 
 import matplotlib.pyplot as plt
-from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
+from matplotlib.dates import DayLocator, DateFormatter, drange
 from numpy import arange
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
-from kivy.uix.image import Image
 from kivy.metrics import Metrics
-from kivy.uix.stencilview import StencilView
+from kivy.core.image import Image as CoreImage
 import requests
 from requests.exceptions import RequestException
 
@@ -74,6 +72,9 @@ class SportWidget(Widget):
             instance.x = max_pos
 
     def generate_weight_graph_texture(self):
+        #from smart_house_ui.db import session, User
+        #print session.query(User).all()
+
         date1 = datetime.datetime(2000, 2, 1)
         date2 = datetime.datetime(2000, 4, 1)
         delta = datetime.timedelta(days=1)
@@ -93,13 +94,6 @@ class SportWidget(Widget):
             lw=3,
         )
 
-        '''for x, y in zip(dates, points):
-            if not y:
-                continue
-            ax.annotate(y, xy=(x, y), xytext=(0, 3), ha='center',
-                textcoords='offset points', fontsize=7, color='#eeeeee')
-                '''
-
         ax.set_xlim(dates[0] - 1, dates[-1] + 1)
         ax.set_ylim(75, 95)
 
@@ -113,7 +107,10 @@ class SportWidget(Widget):
         def px_to_inches(x):
             return x / Metrics.dpi
 
-        fig.set_size_inches(px_to_inches(len(dates)*15), px_to_inches(self.ids['weight_graph'].height))
+        fig.set_size_inches(
+            px_to_inches(len(dates) * 15),
+            px_to_inches(self.ids['weight_graph'].height),
+        )
         plt.grid(True, color='w')
 
         plt.rc('font', size=10)
@@ -127,5 +124,4 @@ class SportWidget(Widget):
         buf = io.BytesIO()
         plt.savefig(buf, format='png', transparent=True, bbox_inches='tight')
         buf.seek(0)
-        from kivy.core.image import Image as CoreImage
         return CoreImage(buf, ext='png').texture

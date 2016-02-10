@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 from random import random
-from itertools import product
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -12,7 +11,10 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.logger import Logger as log
 from kivy.graphics import Color, Rectangle
 
-SCREENSAVER_TIMEOUT = 60
+from .game_of_life import compute_next_step
+
+
+SCREENSAVER_TIMEOUT = 2
 FIRST_GENERATION_DENSITY = 0.3
 RESTART_EVERY = 180  # seconds
 LOOP_DELAY = 0.4
@@ -51,35 +53,7 @@ class ScreensaverDrawingArea(FloatLayout):
                     )
 
     def _update(self, *args):
-        to_change = {}
-
-        for x in range(self._cells_count_x):
-            for y in range(self._cells_count_y):
-                cells = product(
-                    [
-                        x - 1 if x > 0 else self._cells_count_x - 1,
-                        x,
-                        x + 1 if x < self._cells_count_x - 1 else 0,
-                    ],
-                    [
-                        y-1 if y > 0 else self._cells_count_y - 1,
-                        y,
-                        y + 1 if y < self._cells_count_y - 1 else 0,
-                    ],
-                )
-                neighbours_total_life = sum(self._cells[item].a for item in cells)
-
-                if self._cells[(x, y)].a:
-                    neighbours_total_life -= 1
-
-                    if neighbours_total_life not in [2, 3]:
-                        to_change[(x, y)] = 0
-                else:
-                    if neighbours_total_life == 3:
-                        to_change[(x, y)] = 1
-
-        for item, value in to_change.items():
-            self._cells[item].a = value
+        compute_next_step(self._cells_count_x, self._cells_count_y, self._cells)
 
         # Updating sensors
         if not self._tempr_label:

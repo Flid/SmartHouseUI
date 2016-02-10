@@ -2,3 +2,5 @@ cython
 kivy
 pillow
 matplotlib
+sqlalchemy
+psycopg2
