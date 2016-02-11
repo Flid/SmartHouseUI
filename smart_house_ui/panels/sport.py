@@ -9,6 +9,7 @@ from numpy import arange
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.metrics import Metrics
+from kivy.logger import Logger
 from kivy.core.image import Image as CoreImage
 import requests
 from requests.exceptions import RequestException
@@ -30,36 +31,37 @@ class SportWidget(Widget):
 
     def __init__(self, *args, **kwargs):
         super(SportWidget, self).__init__(*args, **kwargs)
+        self._last_total_distance = 0
         Clock.schedule_once(self.update_data, timeout=1)
-        Clock.schedule_interval(self.update_data, timeout=10)
-        Clock.schedule_once(self.set_graph, timeout=1)
+        Clock.schedule_interval(self.update_data, timeout=3)
 
-    def set_state_error(self):
-        self.ids['total_distance'].text = '--/--'
+    def update_data(self, *args, **kwargs):
+        data = None
+        force_rerender_graph = kwargs.get('force_rerender_graph')
 
-    def update_data(self, instance):
         try:
             response = requests.get(
                 'http://127.0.0.1:10100/sensors/endomondo/read',
                 timeout=(0.05, 0.1),
             )
+            raw_data = response.json()
+            if raw_data['status'] == 'ok':
+                data = raw_data['data']
+
         except RequestException as ex:
-            self.set_state_error()
-            return
+            Logger.error('Failed to read Endomondo sensor: %s' % ex)
 
-        data = response.json()
+        if not data \
+                or self._last_total_distance != data['total_distance'] \
+                or force_rerender_graph:
+            self.set_graph(workouts_data=data)
 
-        if data['status'] != 'ok':
-            self.set_state_error()
-            return
+        self._last_total_distance = data['total_distance'] if data else 0
 
-        data = data['data']
-        self.ids['total_distance'].text = 'Total Distance: %s km' % (
-            round(data['total_distance'], 2)
-        )
+    def set_graph(self, *args, **kwargs):
+        workouts_data = kwargs.get('workouts_data')
 
-    def set_graph(self, *args):
-        texture = self.generate_weight_graph_texture()
+        texture = self.generate_weight_graph_texture(workouts_data=workouts_data)
         self.ids['weight_graph'].size = texture.size
         self.ids['weight_graph'].parent.size = texture.size
 
@@ -82,7 +84,8 @@ class SportWidget(Widget):
         if pos[0] < max_pos:
             instance.x = max_pos
 
-    def generate_weight_graph_texture(self):
+    def generate_weight_graph_texture(self, workouts_data=None):
+        Logger.info('Rerendering weight graph...')
         start_dt = datetime.datetime.now() - datetime.timedelta(days=SHOW_LAST_DAYS_COUNT)
         measurements = get_weights(start_dt)
 
@@ -114,6 +117,36 @@ class SportWidget(Widget):
             lw=3,
         )
 
+        if workouts_data:
+            distance_by_day = workouts_data['distance_by_day']
+
+            for str_date, distance in distance_by_day.items():
+                date = date2num(
+                    datetime.datetime.strptime(str_date, '%Y-%m-%d').date(),
+                )
+                if date not in graph_points:
+                    continue
+
+                ax.annotate(
+                    str(round(distance, 2)),
+                    xy=(date, 76),
+                    rotation=90,
+                    verticalalignment='bottom',
+                    horizontalalignment='center',
+                    color='#eeffee',
+                    fontsize=9,
+                )
+
+            ax.annotate(
+                str('Total: %.1f' % workouts_data['total_distance']),
+                xy=(dates[-1] + 1, 76),
+                rotation=90,
+                verticalalignment='bottom',
+                horizontalalignment='center',
+                color='#eeffee',
+                fontsize=9,
+            )
+
         # Set graph appearance
         ax.set_xlim(dates[0] - 1, dates[-1] + 1)
         ax.set_ylim(75, 95)
@@ -126,7 +159,7 @@ class SportWidget(Widget):
 
         fig.set_size_inches(
             px_to_inches(len(dates) * 15),
-            px_to_inches(self.ids['weight_graph'].height),
+            px_to_inches(self.height),
         )
         plt.grid(True, color='w')
 
@@ -146,4 +179,4 @@ class SportWidget(Widget):
 
     def save_weight_value(self, value):
         add_weight(value)
-        self.set_graph()
+        self.update_data(force_rerender_graph=True)
