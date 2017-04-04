@@ -51,25 +51,22 @@
 
 <Panels@RelativeLayout>:
     weather: weather
-    music: music
     calendar: calendar
 
     size_hint: None, None
     size: panel_width*2+clearance_size , sidebar_height
     pos: sidebar_width + 37, (480 - sidebar_height) / 2
 
-    weather: weather
-    music: music
-    calendar: calendar
-
     WeatherPanel:
         id: weather
 
-    MusicPanel:
-        id: music
+    Panel:
+        id: empty_panel_1
+        pos: panel_width+clearance_size, panel_height+clearance_size
 
     CalendarPanel:
         id: calendar
 
-    SportPanel:
-        id: sport
+    Panel:
+        id: empty_panel_2
+        pos: 0, 0

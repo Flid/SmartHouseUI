@@ -17,4 +17,3 @@ class SettingsScreen(Screen):
 
     def on_sensors_update_btn_press(self, inst):
         sensors_update()
-

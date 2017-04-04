@@ -15,4 +15,5 @@ class SidebarWidget(Widget):
         screen_manager.current = 'settings'
 
     def on_btn_quit(self):
-        exit()
+        # exit()
+        pass  # It will be auto restarted by systemd anyway

@@ -33,8 +33,6 @@ class SmartHouseApp(App):
             'debug',
             'panels/base',
             'panels/weather',
-            'panels/music',
-            'panels/sport',
             'panels/calendar',
             'screens/main',
             'screens/settings',
