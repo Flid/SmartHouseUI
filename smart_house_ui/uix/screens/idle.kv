@@ -1,8 +1,9 @@
-#:import ScreensaverDrawingArea smart_house_ui.screens.idle.ScreensaverDrawingArea
+#:import GameOfLifeArea smart_house_ui.screens.screensavers.GameOfLifeArea
+#:import EyesArea smart_house_ui.screens.screensavers.EyesArea
 #:import reschedule_screensaver smart_house_ui.screens.idle.reschedule_screensaver
 
 
-<ScreensaverDrawingArea>:
+<GameOfLifeArea>:
     Label:
         id: time_label
         size_hint: 1, 0.3
@@ -20,12 +21,16 @@
         font_size: '50sp'
         markup: True
 
+<EyesArea>:
+    Label:
+        size_hint: 1, 0.3
+        pos_hint: {'x': 0, 'y': 0.4}
+        color: 0.7, 0.7, 0.7, 1
+        text: '--//--'
+        font_size: '90sp'
+
 
 <IdleScreen>:
-    ScreensaverDrawingArea:
-        id: draw_area
-        size: self.parent.size
-        pos: self.parent.pos
 
 
 <Widget>:

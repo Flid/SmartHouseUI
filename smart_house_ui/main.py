@@ -56,4 +56,3 @@ class SmartHouseApp(App):
 
     def on_stop(self):
         log.info('Stopping app...')
-        self.main_screen.panels.music.release()
