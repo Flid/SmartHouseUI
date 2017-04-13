@@ -1,3 +1,4 @@
+from math import sin, cos, pi, acos, asin, sqrt
 from .game_of_life import compute_next_step
 from random import random
 from kivy.graphics import Color, Rectangle
@@ -8,11 +9,15 @@ from kivy.uix.floatlayout import FloatLayout
 
 
 class ScreensaverDrawingArea(FloatLayout):
+    LOOP_DELAY = 1
+
     def restart(self):
-        raise NotImplementedError()
+        self._init()
+        self._update()
+        Clock.schedule_interval(self._update, self.LOOP_DELAY)
 
     def stop(self):
-        raise NotImplementedError()
+        Clock.unschedule(self._update)
 
 
 class GameOfLifeArea(ScreensaverDrawingArea):
@@ -42,14 +47,12 @@ class GameOfLifeArea(ScreensaverDrawingArea):
                     )
 
     def restart(self):
-        self._init()
+        super(GameOfLifeArea, self).restart()
         Clock.schedule_interval(self._init, self.RESTART_EVERY)
-        self._update()
-        Clock.schedule_interval(self._update, self.LOOP_DELAY)
 
     def stop(self):
-        Clock.unschedule(self._update)
         Clock.unschedule(self._init)
+        super(GameOfLifeArea, self).stop()
 
     def _update(self, *args):
         compute_next_step(self._cells_count_x, self._cells_count_y, self._cells)
@@ -71,8 +74,41 @@ class GameOfLifeArea(ScreensaverDrawingArea):
 
 
 class EyesArea(ScreensaverDrawingArea):
-    def restart(self):
+    MAX_OFFSET_RATIO = 0.3
+
+    def _init(self):
+        self.app = App.get_running_app()
+        self.app.movement_tracker.bind(on_movement=self._update_eyes_position)
+
+    def set_eye_pos(self, eye, angle_rad, value):
+        offset_value = value * eye.width * self.MAX_OFFSET_RATIO
+
+        offset = (
+            offset_value * sin(angle_rad),
+            offset_value * cos(angle_rad),
+        )
+        eye.ids['internal'].pos = (
+            eye.width - eye.ids['internal'].width + offset[0],
+            eye.height - eye.ids['internal'].height + offset[1],
+        )
+
+    def _update(self, *args):
         pass
 
-    def stop(self):
-        pass
+    def _update_eyes_position(self, instance, pos, size):
+        rel_point = (
+            self.width / 2. - pos[0] + size[0] / 2.,
+            self.height / 2. - pos[1] + size[1] / 2.,
+        )
+        length = sqrt(rel_point[0]**2 + rel_point[1]**2)
+        angle = acos(rel_point[0] / length)
+
+        if rel_point[0] < 0:
+            angle *= -1
+
+        length /= sqrt(self.width**2 + self.height**2) / 2
+
+        print(rel_point, length, angle)
+
+        self.set_eye_pos(self.eye_left, angle, length)
+        self.set_eye_pos(self.eye_right, angle, length)

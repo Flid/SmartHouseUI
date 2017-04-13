@@ -21,13 +21,34 @@
         font_size: '50sp'
         markup: True
 
+<EyeArea@RelativeLayout>:
+    Image:
+        id: external
+        source: 'static/eye_external.png'
+        size: self.parent.size
+        pos: 0, 0
+
+    Image:
+        id: internal
+        source: 'static/eye_internal.png'
+        size: self.parent.size
+        pos: 0, 0
+
+
 <EyesArea>:
-    Label:
-        size_hint: 1, 0.3
-        pos_hint: {'x': 0, 'y': 0.4}
-        color: 0.7, 0.7, 0.7, 1
-        text: '--//--'
-        font_size: '90sp'
+    eye_left: eye_left
+    eye_right: eye_right
+
+    EyeArea:
+        id: eye_left
+        size_hint: 0.5, 1
+        pos_hint: {'x': 0, 'y': 0}
+
+    EyeArea:
+        id: eye_right
+        size_hint: 0.5, 1
+        pos_hint: {'x': 0.5, 'y': 0}
+
 
 
 <IdleScreen>:

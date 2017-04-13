@@ -13,6 +13,7 @@ from .screens import (
     SettingsScreen,
     IdleScreen,
 )
+from .camera import MovementTracker
 
 
 class CustomScreenManager(ScreenManager):
@@ -41,6 +42,8 @@ class SmartHouseApp(App):
             Builder.load_file(os.path.join('smart_house_ui/uix', f + '.kv'))
 
     def build(self):
+        self.movement_tracker = MovementTracker()
+
         self.sm = CustomScreenManager()
 
         self.main_screen = MainScreen(name='main')
