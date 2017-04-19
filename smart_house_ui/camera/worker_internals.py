@@ -7,7 +7,7 @@ import requests
 from PIL import Image
 import logging
 from prod_config import CAMERA_RECOGNIZER_URL, CAMERA_IMAGE_SIZE
-from face_recognition import MotionDetector
+from face_recognition.motion import MotionDetector
 import numpy as np
 
 
@@ -73,7 +73,7 @@ class FaceImageProcessor(ImageProcessorBase):
 
 class MotionImageProcessor(ImageProcessorBase):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(MotionImageProcessor, self).__init__(*args, **kwargs)
         self.md = MotionDetector(1000)
 
     def process_frame(self):
