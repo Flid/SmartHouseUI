@@ -41,17 +41,18 @@ class MovementTracker(EventDispatcher):
         lock = threading.Lock()
 
         def streams():
-            with lock:
-                if pool:
-                    processor = pool.pop()
+            while True:
+                with lock:
+                    if pool:
+                        processor = pool.pop()
+                    else:
+                        processor = None
+                if processor:
+                    yield processor.stream
+                    processor.event.set()
                 else:
-                    processor = None
-            if processor:
-                yield processor.stream
-                processor.event.set()
-            else:
-                # When the pool is starved, wait a while for it to refill
-                time.sleep(0.1)
+                    # When the pool is starved, wait a while for it to refill
+                    time.sleep(0.1)
 
         def send(img_stream):
             img_stream.seek(0)
@@ -68,7 +69,8 @@ class MovementTracker(EventDispatcher):
             if response.status_code != 200:
                 return None
 
-            return json.loads(response.content)
+            result = json.loads(response.content.decode('utf-8'))
+            self._job_queue.put(result)
 
         class ImageProcessor(threading.Thread):
             def __init__(self):
@@ -81,13 +83,14 @@ class MovementTracker(EventDispatcher):
 
             def run(self):
                 # This method runs in a separate thread
-                global done
                 while not self.terminated:
                     # Wait for an image to be written to the stream
                     if self.event.wait(1):
                         try:
                             log.info('New camera frame')
                             send(self.stream)
+                        except Exception:
+                            log.exception('Error while processing frame')
                         finally:
                             # Reset the stream and event
                             self.stream.seek(0)
