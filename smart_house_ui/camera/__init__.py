@@ -5,6 +5,7 @@ from multiprocessing import Process, Queue
 class MovementTracker(EventDispatcher):
     def __init__(self):
         self.register_event_type('on_movement')
+        self.register_event_type('on_face_recognized')
 
         self._job_queue = Queue()
         self._worker_process = Process(target=self.api_worker)
@@ -18,14 +19,19 @@ class MovementTracker(EventDispatcher):
         while not self._job_queue.empty():
             result = self._job_queue.get()
 
-            motion_center = result.get('motion', {}).get('center')
+            t = result.get('type')
 
-            if motion_center:
-                self.dispatch('on_movement', motion_center)
+            if t == 'motion':
+                self.dispatch('on_movement', result['data'])
+            elif t == 'face':
+                self.dispatch('on_face_recognized', result['data'])
 
     def on_movement(self, pos):
         pass
 
+    def on_face_recognized(self, faces):
+        pass
+
     def api_worker(self):
         from smart_house_ui.camera.worker_internals import run
-        run()
+        run(self._job_queue)

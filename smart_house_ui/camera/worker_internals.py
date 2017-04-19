@@ -32,7 +32,6 @@ class ImageProcessorBase(threading.Thread):
             # Wait for an image to be written to the stream
             if self.event.wait(1):
                 try:
-                    log.info('New camera frame')
                     self.process_frame()
                 except Exception:
                     log.exception('Error while processing frame')
@@ -82,9 +81,9 @@ class MotionImageProcessor(ImageProcessorBase):
         arr = np.array(img)
         result = self.md.submit_frame(arr)
 
-        if result:
+        if result.get('center'):
             log.info('Motion %s', result)
-            self._job_queue.put({'type': 'motion', 'data': result})
+            self._job_queue.put({'type': 'motion', 'data': result['center']})
 
 
 def run(job_queue):

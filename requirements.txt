@@ -5,3 +5,4 @@ matplotlib
 sqlalchemy
 psycopg2
 git+https://github.com/Flid/face_recognition.git
+Cython==0.25.2
