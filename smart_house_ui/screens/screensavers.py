@@ -95,10 +95,10 @@ class EyesArea(ScreensaverDrawingArea):
     def _update(self, *args):
         pass
 
-    def _update_eyes_position(self, instance, pos, size):
+    def _update_eyes_position(self, instance, pos):
         rel_point = (
-            self.width / 2. - pos[0] + size[0] / 2.,
-            self.height / 2. - pos[1] + size[1] / 2.,
+            self.width / 2. - pos[0],
+            self.height / 2. - pos[1],
         )
         length = sqrt(rel_point[0]**2 + rel_point[1]**2)
         angle = acos(rel_point[0] / length)
