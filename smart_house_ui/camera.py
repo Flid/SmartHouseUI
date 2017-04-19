@@ -1,6 +1,7 @@
 from kivy.event import EventDispatcher
 from prod_config import CAMERA_RECOGNIZER_URL, CAMERA_IMAGE_SIZE
 from multiprocessing import Process, Queue
+import logging
 
 
 class MovementTracker(EventDispatcher):
@@ -35,6 +36,7 @@ class MovementTracker(EventDispatcher):
         import json
         import requests
         from PIL import Image
+        log = logging.getLogger(__name__)
 
         lock = threading.Lock()
 
@@ -84,6 +86,7 @@ class MovementTracker(EventDispatcher):
                     # Wait for an image to be written to the stream
                     if self.event.wait(1):
                         try:
+                            log.info('New camera frame')
                             send(self.stream)
                         finally:
                             # Reset the stream and event
@@ -94,12 +97,14 @@ class MovementTracker(EventDispatcher):
                             with lock:
                                 pool.append(self)
 
+        log.info('Setting up camera')
         _cap = PiCamera()
         _cap.resolution = CAMERA_IMAGE_SIZE
         _cap.framerate = 8
 
-        time.sleep(0.1)  # Let it stabilize
+        time.sleep(1)  # Let it stabilize
 
         pool = [ImageProcessor()]
+        log.info('Pool initialized')
 
         _cap.capture_sequence(streams(), use_video_port=True)
