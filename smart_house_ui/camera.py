@@ -39,21 +39,20 @@ class MovementTracker(EventDispatcher):
         lock = threading.Lock()
 
         def streams():
-            while not done:
-                with lock:
-                    if pool:
-                        processor = pool.pop()
-                    else:
-                        processor = None
-                if processor:
-                    yield processor.stream
-                    processor.event.set()
+            with lock:
+                if pool:
+                    processor = pool.pop()
                 else:
-                    # When the pool is starved, wait a while for it to refill
-                    time.sleep(0.1)
+                    processor = None
+            if processor:
+                yield processor.stream
+                processor.event.set()
+            else:
+                # When the pool is starved, wait a while for it to refill
+                time.sleep(0.1)
 
         def send(img_stream):
-            self.stream.seek(0)
+            img_stream.seek(0)
             buf = io.BytesIO()
             img = Image.open(img_stream).convert('L')
             img.save(buf, format='JPEG', quality=90)
