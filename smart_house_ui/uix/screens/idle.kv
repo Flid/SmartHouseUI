@@ -1,5 +1,4 @@
 #:import GameOfLifeArea smart_house_ui.screens.screensavers.GameOfLifeArea
-#:import EyesArea smart_house_ui.screens.screensavers.EyesArea
 #:import reschedule_screensaver smart_house_ui.screens.idle.reschedule_screensaver
 
 
@@ -33,23 +32,6 @@
         source: 'static/eye_internal.png'
         size: self.parent.size
         pos: 0, 0
-
-
-<EyesArea>:
-    eye_left: eye_left
-    eye_right: eye_right
-
-    EyeArea:
-        id: eye_left
-        size_hint: 0.5, 1
-        pos_hint: {'x': 0, 'y': 0}
-
-    EyeArea:
-        id: eye_right
-        size_hint: 0.5, 1
-        pos_hint: {'x': 0.5, 'y': 0}
-
-
 
 <IdleScreen>:
 

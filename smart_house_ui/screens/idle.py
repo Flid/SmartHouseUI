@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 from kivy.logger import Logger as log
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen, FadeTransition
-from .screensavers import EyesArea, GameOfLifeArea
+from .screensavers import GameOfLifeArea
 
-SCREENSAVER_TIMEOUT = 2
+SCREENSAVER_TIMEOUT = 30
 
 
 def reschedule_screensaver():
@@ -31,7 +31,7 @@ class IdleScreen(Screen):
         self._initialized = False
 
     def _init(self):
-        self.area = EyesArea()
+        self.area = GameOfLifeArea()
         self.area.size = self.size
         print(self.size, self.pos)
         self.area.pos = self.pos
