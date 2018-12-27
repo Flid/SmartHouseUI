@@ -51,7 +51,7 @@
 
 <Panels@RelativeLayout>:
     weather: weather
-    calendar: calendar
+    light_control: light_control
 
     size_hint: None, None
     size: panel_width*2+clearance_size , sidebar_height
@@ -59,13 +59,15 @@
 
     WeatherPanel:
         id: weather
+    
+    LightControlPanel:
+        id: light_control
+        pos: panel_width+clearance_size, panel_height+clearance_size
+        
 
     Panel:
         id: empty_panel_1
-        pos: panel_width+clearance_size, panel_height+clearance_size
-
-    CalendarPanel:
-        id: calendar
+        pos: panel_width+clearance_size, 0
 
     Panel:
         id: empty_panel_2

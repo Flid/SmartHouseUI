@@ -1,7 +1,9 @@
 cython
 kivy
 pillow
-matplotlib
 sqlalchemy
 psycopg2
 Cython
+click==7.0
+websockets==7.0
+websocket-client==0.54.0

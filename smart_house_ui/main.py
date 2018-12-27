@@ -1,4 +1,7 @@
 import pyximport
+
+from smart_house_ui.light_controller import LightController, Message
+
 pyximport.install()
 
 import os
@@ -33,7 +36,7 @@ class SmartHouseApp(App):
             'debug',
             'panels/base',
             'panels/weather',
-            'panels/calendar',
+            'panels/light_control',
             'screens/main',
             'screens/settings',
             'screens/idle',
@@ -41,6 +44,9 @@ class SmartHouseApp(App):
             Builder.load_file(os.path.join('smart_house_ui/uix', f + '.kv'))
 
     def build(self):
+        self.light_control_client = LightController('192.168.0.50', 81, debug=True)
+        self.light_control_client.start()
+
         self.sm = CustomScreenManager()
 
         self.main_screen = MainScreen(name='main')

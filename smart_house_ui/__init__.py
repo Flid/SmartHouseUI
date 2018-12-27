@@ -7,6 +7,7 @@ from kivy.uix.button import ButtonBehavior
 
 from .panels import (
     WeatherWidget,
+    LightControlWidget,
     SidebarWidget,
 )
 

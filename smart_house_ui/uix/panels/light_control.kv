@@ -1,0 +1,13 @@
+
+<LightControlPanel@Panel+LightControlWidget>:
+    pos: panel_width+clearance_size, 0
+    brightness_slider: brightness_slider
+    current_brightness: brightness_slider.value
+
+    Slider:
+        id: brightness_slider
+        max: 255
+        min: 0
+        
+        size_hint: 0.8, 0.2
+        pos_hint: {'x': 0.1, 'top': 0.95}

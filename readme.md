@@ -35,3 +35,6 @@ and outdoors.
 Really? Ok, I have to write something about that. I wrote this code just for fun, so if 
 you accidentally find something interesting - just use it. It would be nice to notify 
 me in this case, I will be happy to help with deployment and updates.
+
+# Installing Kivy with SDL2
+KIVY_WINDOW=sdl2 KIVY_GL_BACKEND=sdl2 USE_SDL2=1 pip install --no-binary :all: kivy

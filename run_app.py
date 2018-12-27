@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from logging.config import dictConfig
 import os
 
