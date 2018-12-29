@@ -20,6 +20,7 @@ class LightController:
         self._srv_thread = None
         self._pusher_thread = None
         self._have_connection = False
+        self.started = False
 
     def on_message(self, message):
         log.info('WebSocket message: %s', message)
@@ -91,6 +92,22 @@ class LightController:
 
         self._srv_thread = Thread(target=self._server_runner, daemon=True)
         self._srv_thread.start()
+        self.started = True
 
-    def send(self, body, persistent=False):
-        self._message_queue.put(Message(body, persistent))
+    def send(self, command, data, persistent=False):
+        if not self.started:
+            log.info(
+                'Not sending a command because '
+                'LightController has not been started'
+            )
+            return
+
+        message = Message(
+            {
+                'command': command,
+                'data': data,
+            },
+            persistent,
+        )
+        log.info('Accepted a LightControl command: %s', message)
+        self._message_queue.put(message)

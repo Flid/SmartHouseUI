@@ -25,5 +25,5 @@ def compute_next_step(width, height, cells):
                 if neighbours_total_life == 3:
                     to_update[(x, y)] = 1
 
-    for key, value in to_update.iteritems():
+    for key, value in to_update.items():
         cells[key].a = value

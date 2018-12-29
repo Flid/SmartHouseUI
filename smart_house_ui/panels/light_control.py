@@ -24,11 +24,15 @@ class LightControlWidget(Widget):
         self.last_brightness_sent = None
 
     def send_updates(self, instance):
-        if self.last_brightness_sent != self.current_brightness:
-            self.last_brightness_sent = self.current_brightness
+        brightness = max(
+            0,
+            min(255, int(self.current_brightness)),
+        )
 
-            App.get_running_app().light_control_client.send({
-                'command': 'set_brightness',
-                'data': {'value': int(self.current_brightness)},
-                'value': int(self.current_brightness),
+        if self.last_brightness_sent != brightness:
+            self.last_brightness_sent = brightness
+
+            App.get_running_app().light_control_client.send(
+                command='set_brightness',
+                data={'value': brightness,
             })

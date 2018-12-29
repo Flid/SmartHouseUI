@@ -10,7 +10,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.lang import Builder
 from kivy.logger import Logger as log
-
+from kivy.config import Config
 from .screens import (
     MainScreen,
     SettingsScreen,
@@ -44,10 +44,16 @@ class SmartHouseApp(App):
             Builder.load_file(os.path.join('smart_house_ui/uix', f + '.kv'))
 
     def build(self):
-        self.light_control_client = LightController('192.168.0.50', 81, debug=True)
-        self.light_control_client.start()
+        self.light_control_client = LightController(
+            Config.get('light_controls', 'ip_address'),
+            81, debug=True,
+        )
+
+        if Config.getboolean('light_controls', 'device_enabled'):
+            self.light_control_client.start()
 
         self.sm = CustomScreenManager()
+
 
         self.main_screen = MainScreen(name='main')
         self.sm.add_widget(self.main_screen)
@@ -57,6 +63,7 @@ class SmartHouseApp(App):
 
         self.idle_screen = IdleScreen(name='idle')
         self.sm.add_widget(self.idle_screen)
+
 
         return self.sm
 
