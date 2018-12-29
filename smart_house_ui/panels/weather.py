@@ -59,8 +59,6 @@ class WeatherWidget(Widget):
             self.set_state_error()
             return
 
-
-
         self.temp_out.text = str(round(data.temperature))
         self.humidity_out.text = str(round(data.humidity))
 

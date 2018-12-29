@@ -34,7 +34,6 @@ class IdleScreen(Screen):
     def _init(self):
         self.area = GameOfLifeArea()
         self.area.size = self.size
-        print(self.size, self.pos)
         self.area.pos = self.pos
         self.add_widget(self.area)
         self.ids["draw_area"] = self.area

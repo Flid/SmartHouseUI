@@ -65,7 +65,7 @@ class GameOfLifeArea(ScreensaverDrawingArea):
 
         temp = self._tempr_label.text
         if temp and temp.isdigit():
-            temp = "Temperature: %s [sup]o[/sup]C" % temp
+            temp = "Temperature: %s ℃" % temp
         else:
             temp = "Temperature Unknown =("
 
