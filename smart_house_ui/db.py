@@ -18,13 +18,9 @@ session = Session()
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
     def __repr__(self):
-        return '<%s id=%s name=%s>' % (
-            self.__class__.__name__,
-            self.id,
-            self.name,
-        )
+        return "<%s id=%s name=%s>" % (self.__class__.__name__, self.id, self.name)

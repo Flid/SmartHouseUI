@@ -17,7 +17,7 @@ def reschedule_screensaver():
 def _run_screensaver(*args):
     manager = IdleScreen._instance.manager
     manager.transition = FadeTransition()
-    manager.current = 'idle'
+    manager.current = "idle"
 
 
 class IdleScreen(Screen):
@@ -36,19 +36,19 @@ class IdleScreen(Screen):
         print(self.size, self.pos)
         self.area.pos = self.pos
         self.add_widget(self.area)
-        self.ids['draw_area'] = self.area
+        self.ids["draw_area"] = self.area
 
     def on_pre_enter(self, *args):
-        log.debug('Starting screensaver...')
+        log.debug("Starting screensaver...")
         if not self._initialized:
             self._init()
             self._initialized = True
 
-        self.ids['draw_area'].restart()
+        self.ids["draw_area"].restart()
 
     def on_leave(self, *args):
-        log.debug('Stopping screensaver...')
-        self.ids['draw_area'].stop()
+        log.debug("Stopping screensaver...")
+        self.ids["draw_area"].stop()
 
     def on_touch_down(self, touch):
         self.manager.transition = FadeTransition()

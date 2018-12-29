@@ -20,7 +20,7 @@ class WeatherWidget(Widget):
     pressure = ObjectProperty(None)
     rain_forecast = ObjectProperty(None)
 
-    re_weather_icon = re.compile(r'^.*/(\d\d)[dn]\.png$')
+    re_weather_icon = re.compile(r"^.*/(\d\d)[dn]\.png$")
 
     def __init__(self, *args, **kwargs):
         super(WeatherWidget, self).__init__(*args, **kwargs)
@@ -31,20 +31,20 @@ class WeatherWidget(Widget):
         result = self.re_weather_icon.match(url)
 
         if not result:
-            print('Invalid weather url %s' % url)
+            print("Invalid weather url %s" % url)
             return
 
-        name = 'static/weather/%s.png' % result.groups()[0]
+        name = "static/weather/%s.png" % result.groups()[0]
         if os.path.exists(name):
             self.weather_icon.source = name
         else:
-            print('Invalid weather url %s' % url)
+            print("Invalid weather url %s" % url)
 
     def set_state_error(self):
-        self.temp_out.text = '--'
-        self.humidity_out.text = '--'
-        self.pressure.text = 'Pressure: +0.0%'
-        self.rain_forecast.text = 'Expecting: -------- (0.00)'
+        self.temp_out.text = "--"
+        self.humidity_out.text = "--"
+        self.pressure.text = "Pressure: +0.0%"
+        self.rain_forecast.text = "Expecting: -------- (0.00)"
 
     def set_state_ok(self):
         pass
@@ -52,8 +52,7 @@ class WeatherWidget(Widget):
     def update_weather(self, instance):
         try:
             response = requests.get(
-                'http://127.0.0.1:10100/sensors/weather/read',
-                timeout=(0.05, 0.1),
+                "http://127.0.0.1:10100/sensors/weather/read", timeout=(0.05, 0.1)
             )
         except RequestException as ex:
             self.set_state_error()
@@ -61,33 +60,32 @@ class WeatherWidget(Widget):
 
         data = response.json()
 
-        if data['status'] != 'ok':
+        if data["status"] != "ok":
             self.set_state_error()
             return
 
-        data = data['data']
+        data = data["data"]
 
-        self.temp_out.text = str(round(data['temperature']))
-        self.humidity_out.text = str(round(data['humidity']))
+        self.temp_out.text = str(round(data["temperature"]))
+        self.humidity_out.text = str(round(data["humidity"]))
 
-        delta_pressure = (data['pressure'] - AVERAGE_PRESSURE) / data['pressure'] * 100
-        self.pressure.text = 'Pressure: %s%0.1f %%' % (
-            '+' if delta_pressure > 0 else '',
+        delta_pressure = (data["pressure"] - AVERAGE_PRESSURE) / data["pressure"] * 100
+        self.pressure.text = "Pressure: %s%0.1f %%" % (
+            "+" if delta_pressure > 0 else "",
             delta_pressure,
         )
 
-        rain_forecast_rating = data['rain_forecast_rating']
+        rain_forecast_rating = data["rain_forecast_rating"]
         if rain_forecast_rating > 1.0:
-            text = 'heavy rain'
+            text = "heavy rain"
         elif rain_forecast_rating > 0.5:
-            text = 'rain'
+            text = "rain"
         elif rain_forecast_rating > 0.2:
-            text = 'drizzle'
+            text = "drizzle"
         else:
-            text = 'clear'
+            text = "clear"
 
-        self.set_weather_icon_by_url(data['icon_url'])
+        self.set_weather_icon_by_url(data["icon_url"])
 
-        self.rain_forecast.text = 'Expected: %s (%0.2f)' % (text, rain_forecast_rating)
+        self.rain_forecast.text = "Expected: %s (%0.2f)" % (text, rain_forecast_rating)
         self.set_state_ok()
-

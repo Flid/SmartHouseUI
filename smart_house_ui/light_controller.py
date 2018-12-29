@@ -7,7 +7,7 @@ import websocket
 from queue import Queue
 from threading import Thread
 
-Message = namedtuple('Message', 'body, persistent')
+Message = namedtuple("Message", "body, persistent")
 
 
 class LightController:
@@ -23,17 +23,17 @@ class LightController:
         self.started = False
 
     def on_message(self, message):
-        log.info('WebSocket message: %s', message)
+        log.info("WebSocket message: %s", message)
 
     def on_error(self, error):
-        log.error('WebSocket error: %s', error)
+        log.error("WebSocket error: %s", error)
 
     def on_close(self):
-        log.info('WebSocket disconnected')
+        log.info("WebSocket disconnected")
         self._have_connection = False
 
     def on_open(self):
-        log.info('WebSocket connected')
+        log.info("WebSocket connected")
         self._have_connection = True
 
     def _message_pusher(self):
@@ -63,7 +63,7 @@ class LightController:
                     raise
 
             except Exception:
-                log.exception('WebSocket message pusher error')
+                log.exception("WebSocket message pusher error")
                 time.sleep(1)
 
     def _server_runner(self):
@@ -74,7 +74,7 @@ class LightController:
                 time.sleep(1)
 
             except Exception:
-                log.exception('Error in WebSocket server main thread, reconnecting')
+                log.exception("Error in WebSocket server main thread, reconnecting")
 
     def start(self):
         websocket.enableTrace(self._debug)
@@ -83,7 +83,7 @@ class LightController:
         self._pusher_thread.start()
 
         self._client = websocket.WebSocketApp(
-            f'ws://{self._host}:{self._port}/',
+            f"ws://{self._host}:{self._port}/",
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,
@@ -97,17 +97,10 @@ class LightController:
     def send(self, command, data, persistent=False):
         if not self.started:
             log.info(
-                'Not sending a command because '
-                'LightController has not been started'
+                "Not sending a command because " "LightController has not been started"
             )
             return
 
-        message = Message(
-            {
-                'command': command,
-                'data': data,
-            },
-            persistent,
-        )
-        log.info('Accepted a LightControl command: %s', message)
+        message = Message({"command": command, "data": data}, persistent)
+        log.info("Accepted a LightControl command: %s", message)
         self._message_queue.put(message)

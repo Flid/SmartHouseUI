@@ -59,15 +59,15 @@ class GameOfLifeArea(ScreensaverDrawingArea):
 
         # Updating sensors
         if not self._tempr_label:
-            panels = App.get_running_app().main_screen.ids['panels']
-            self._tempr_label = panels.ids['weather'].ids['temp_out']
+            panels = App.get_running_app().main_screen.ids["panels"]
+            self._tempr_label = panels.ids["weather"].ids["temp_out"]
 
         temp = self._tempr_label.text
         if temp and temp.isdigit():
-            temp = 'Temperature: %s [sup]o[/sup]C' % temp
+            temp = "Temperature: %s [sup]o[/sup]C" % temp
         else:
-            temp = 'Temperature Unknown =('
+            temp = "Temperature Unknown =("
 
-        self.ids['temperature_label'].text = temp
+        self.ids["temperature_label"].text = temp
 
-        self.ids['time_label'].text = datetime.now().strftime('%H:%M')
+        self.ids["time_label"].text = datetime.now().strftime("%H:%M")

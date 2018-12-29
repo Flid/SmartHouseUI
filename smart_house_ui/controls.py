@@ -21,4 +21,4 @@ class TimeLabel(Label):
         Clock.schedule_interval(self._update_time, 1)
 
     def _update_time(self, *args):
-        self.text = datetime.now().strftime('%H:%M')
+        self.text = datetime.now().strftime("%H:%M")

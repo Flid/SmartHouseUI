@@ -11,8 +11,8 @@ class SidebarWidget(Widget):
 
     def on_btn_settings(self):
         screen_manager = self.parent.parent.manager
-        screen_manager.transition.direction = 'left'
-        screen_manager.current = 'settings'
+        screen_manager.transition.direction = "left"
+        screen_manager.current = "settings"
 
     def on_btn_quit(self):
         # exit()
