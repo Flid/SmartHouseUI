@@ -46,7 +46,7 @@ _LIGHT_CONTROL_PANEL = [
         "desc": "If disabled, we stop any interactions with the device. Restart required to take effect.",
         "section": "light_controls",
         "key": "device_enabled",
-        "default": True,
+        "default": "1",
     },
     {"type": "title", "title": "Alarm"},
     {
@@ -135,6 +135,14 @@ _LIGHT_CONTROL_PANEL = [
 _OPTION_BY_KEY = {}
 
 
+def _setup_defaults():
+    Config.adddefaultsection("light_controls")
+
+    for option in _LIGHT_CONTROL_PANEL:
+        if "key" in option and "default" in option:
+            Config.setdefault("light_controls", option["key"], option["default"])
+
+
 def _clean_bool(option: Dict, value):
     return value == "1"
 
@@ -172,7 +180,6 @@ def clean_value(option, value):
 def _setup_panel(
     settings: Settings, section_name: str, panel_options: List[Dict[str, Any]]
 ):
-    Config.adddefaultsection(section_name)
     processed_options = []
 
     for option in panel_options:
@@ -186,9 +193,6 @@ def _setup_panel(
         assert option["section"] == section_name
 
         _OPTION_BY_KEY[(section_name, option["key"])] = option
-
-        if "default" in option:
-            Config.setdefault(section_name, option["key"], option.pop("default"))
 
     settings.add_json_panel(
         "Light Controls", Config, data=json.dumps(processed_options)
@@ -250,3 +254,6 @@ class SettingsScreen(Screen):
 
     def on_close(self, *args):
         App.get_running_app().sm.current = "main"
+
+
+_setup_defaults()
