@@ -6,7 +6,8 @@ from kivy.lang import Builder
 from kivy.logger import Logger as log
 from kivy.uix.screenmanager import ScreenManager
 
-from smart_house_ui.light_controller import LightController
+from smart_house_ui.services.light_controller import LightController
+from smart_house_ui.services.weather import WeatherService
 
 from .screens import IdleScreen, MainScreen, SettingsScreen
 
@@ -44,6 +45,9 @@ class SmartHouseApp(App):
 
         if Config.getboolean("light_controls", "device_enabled"):
             self.light_control_client.start()
+
+        self.weather_service = WeatherService()
+        self.weather_service.start()
 
         self.sm = CustomScreenManager()
 

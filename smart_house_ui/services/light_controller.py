@@ -6,12 +6,14 @@ from threading import Thread
 
 import websocket
 from kivy.logger import Logger as log
+from .base import ServiceBase
 
 Message = namedtuple("Message", "body, persistent")
 
 
-class LightController:
+class LightController(ServiceBase):
     def __init__(self, host, port, debug=False):
+        super().__init__()
         self._host = host
         self._port = port
         self._debug = debug
@@ -66,17 +68,7 @@ class LightController:
                 log.exception("WebSocket message pusher error")
                 time.sleep(1)
 
-    def _server_runner(self):
-        while True:
-            try:
-                # Forever heree actually means "until the first error"
-                self._client.run_forever()
-                time.sleep(1)
-
-            except Exception:
-                log.exception("Error in WebSocket server main thread, reconnecting")
-
-    def start(self):
+    def _worker(self):
         websocket.enableTrace(self._debug)
 
         self._pusher_thread = Thread(target=self._message_pusher, daemon=True)
@@ -90,9 +82,14 @@ class LightController:
             on_open=self.on_open,
         )
 
-        self._srv_thread = Thread(target=self._server_runner, daemon=True)
-        self._srv_thread.start()
-        self.started = True
+        while True:
+            try:
+                # Forever heree actually means "until the first error"
+                self._client.run_forever()
+                time.sleep(1)
+
+            except Exception:
+                log.exception("Error in WebSocket server main thread, reconnecting")
 
     def send(self, command, data, persistent=False):
         if not self.started:

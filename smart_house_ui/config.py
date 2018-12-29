@@ -1,0 +1,4 @@
+import os
+
+CITY_ID_LONDON = 2643743
+WEATHER_API_KEY = os.environ['WEATHER_API_KEY']

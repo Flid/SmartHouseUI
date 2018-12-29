@@ -1,11 +1,15 @@
 import os
 import re
+from typing import Optional
 
 import requests
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 from kivy.uix.widget import Widget
+from kivy.app import App
 from requests.exceptions import RequestException
+
+from smart_house_ui.services.weather import WeatherData
 
 AVERAGE_PRESSURE = 1013.25  # bar
 
@@ -49,32 +53,24 @@ class WeatherWidget(Widget):
         pass
 
     def update_weather(self, instance):
-        try:
-            response = requests.get(
-                "http://127.0.0.1:10100/sensors/weather/read", timeout=(0.05, 0.1)
-            )
-        except RequestException:
+        data: Optional[WeatherData] = App.get_running_app().weather_service.data
+
+        if data is None:
             self.set_state_error()
             return
 
-        data = response.json()
 
-        if data["status"] != "ok":
-            self.set_state_error()
-            return
 
-        data = data["data"]
+        self.temp_out.text = str(round(data.temperature))
+        self.humidity_out.text = str(round(data.humidity))
 
-        self.temp_out.text = str(round(data["temperature"]))
-        self.humidity_out.text = str(round(data["humidity"]))
-
-        delta_pressure = (data["pressure"] - AVERAGE_PRESSURE) / data["pressure"] * 100
+        delta_pressure = (data.pressure - AVERAGE_PRESSURE) / data.pressure * 100
         self.pressure.text = "Pressure: %s%0.1f %%" % (
             "+" if delta_pressure > 0 else "",
             delta_pressure,
         )
 
-        rain_forecast_rating = data["rain_forecast_rating"]
+        rain_forecast_rating = data.rain_forecast_rating
         if rain_forecast_rating > 1.0:
             text = "heavy rain"
         elif rain_forecast_rating > 0.5:
@@ -84,7 +80,7 @@ class WeatherWidget(Widget):
         else:
             text = "clear"
 
-        self.set_weather_icon_by_url(data["icon_url"])
+        self.set_weather_icon_by_url(data.icon_url)
 
         self.rain_forecast.text = "Expected: %s (%0.2f)" % (text, rain_forecast_rating)
         self.set_state_ok()

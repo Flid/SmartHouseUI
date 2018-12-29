@@ -3,8 +3,6 @@
 import os
 from logging.config import dictConfig
 
-from smart_house_ui.main import SmartHouseApp  # noqa
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -34,5 +32,6 @@ else:
 dictConfig(LOGGING)
 
 
+from smart_house_ui.main import SmartHouseApp  # isort: skip
 app = SmartHouseApp()
 app.run()
