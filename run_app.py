@@ -31,7 +31,7 @@ else:
 
 dictConfig(LOGGING)
 
-from smart_house_ui.main import SmartHouseApp
+from smart_house_ui.main import SmartHouseApp  # noqa
 
 app = SmartHouseApp()
 app.run()

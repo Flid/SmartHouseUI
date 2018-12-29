@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from .main import MainScreen
-from .settings import SettingsScreen
-from .idle import IdleScreen
+from .main import MainScreen  # noqa
+from .settings import SettingsScreen  # noqa
+from .idle import IdleScreen  # noqa

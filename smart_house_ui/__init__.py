@@ -1,10 +1,5 @@
-from datetime import datetime
+import pyximport  # isort: skip
+pyximport.install()  # isort: skip
 
-from kivy.uix.label import Label
-from kivy.clock import Clock
-from kivy.uix.image import Image
-from kivy.uix.button import ButtonBehavior
-
-from .panels import WeatherWidget, LightControlWidget, SidebarWidget
-
-from .controls import ImageButton, TimeLabel
+from .panels import WeatherWidget, LightControlWidget, SidebarWidget # noqa
+from .controls import ImageButton, TimeLabel  # noqa

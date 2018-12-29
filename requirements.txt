@@ -1,8 +1,6 @@
 cython
 kivy
 pillow
-sqlalchemy
-psycopg2
 Cython
 click==7.0
 websockets==7.0

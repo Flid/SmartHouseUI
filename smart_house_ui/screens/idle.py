@@ -6,7 +6,7 @@ from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen, FadeTransition
 from .screensavers import GameOfLifeArea
 
-SCREENSAVER_TIMEOUT = 30
+SCREENSAVER_TIMEOUT = 2
 
 
 def reschedule_screensaver():

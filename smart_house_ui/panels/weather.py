@@ -54,7 +54,7 @@ class WeatherWidget(Widget):
             response = requests.get(
                 "http://127.0.0.1:10100/sensors/weather/read", timeout=(0.05, 0.1)
             )
-        except RequestException as ex:
+        except RequestException:
             self.set_state_error()
             return
 

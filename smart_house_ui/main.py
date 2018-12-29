@@ -1,11 +1,6 @@
-import pyximport
-
-from smart_house_ui.light_controller import LightController, Message
-
-pyximport.install()
-
 import os
 
+from smart_house_ui.light_controller import LightController
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.lang import Builder

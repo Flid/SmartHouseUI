@@ -1,4 +1,3 @@
-from math import sin, cos, pi, acos, asin, sqrt
 from .game_of_life import compute_next_step
 from random import random
 from kivy.graphics import Color, Rectangle

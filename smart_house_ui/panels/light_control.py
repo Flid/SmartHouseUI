@@ -1,12 +1,6 @@
-import re
-import os
-
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
-from kivy.properties import ObjectProperty, NumericProperty
-import requests
-from requests.exceptions import RequestException
-import time
+from kivy.properties import NumericProperty
 from kivy.app import App
 
 
