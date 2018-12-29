@@ -3,11 +3,10 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-
-from kivy.uix.image import Image
-from kivy.uix.button import ButtonBehavior
-from kivy.uix.label import Label
 from kivy.clock import Clock
+from kivy.uix.button import ButtonBehavior
+from kivy.uix.image import Image
+from kivy.uix.label import Label
 
 
 class ImageButton(ButtonBehavior, Image):

@@ -1,10 +1,12 @@
-from .game_of_life import compute_next_step
-from random import random
-from kivy.graphics import Color, Rectangle
-from kivy.clock import Clock
 from datetime import datetime
+from random import random
+
 from kivy.app import App
+from kivy.clock import Clock
+from kivy.graphics import Color, Rectangle
 from kivy.uix.floatlayout import FloatLayout
+
+from .game_of_life import compute_next_step
 
 
 class ScreensaverDrawingArea(FloatLayout):

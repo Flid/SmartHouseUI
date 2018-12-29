@@ -1,11 +1,11 @@
 import json
 import time
 from collections import namedtuple
-
-from kivy.logger import Logger as log
-import websocket
 from queue import Queue
 from threading import Thread
+
+import websocket
+from kivy.logger import Logger as log
 
 Message = namedtuple("Message", "body, persistent")
 

@@ -1,12 +1,11 @@
-import re
 import os
+import re
 
-from kivy.clock import Clock
-from kivy.uix.widget import Widget
-from kivy.properties import ObjectProperty
 import requests
+from kivy.clock import Clock
+from kivy.properties import ObjectProperty
+from kivy.uix.widget import Widget
 from requests.exceptions import RequestException
-
 
 AVERAGE_PRESSURE = 1013.25  # bar
 

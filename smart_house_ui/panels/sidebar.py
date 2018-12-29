@@ -1,5 +1,5 @@
-from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
+from kivy.uix.widget import Widget
 
 
 class SidebarWidget(Widget):

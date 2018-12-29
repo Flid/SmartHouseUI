@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-from logging.config import dictConfig
 import os
+from logging.config import dictConfig
+
+from smart_house_ui.main import SmartHouseApp  # noqa
 
 LOGGING = {
     "version": 1,
@@ -31,7 +33,6 @@ else:
 
 dictConfig(LOGGING)
 
-from smart_house_ui.main import SmartHouseApp  # noqa
 
 app = SmartHouseApp()
 app.run()

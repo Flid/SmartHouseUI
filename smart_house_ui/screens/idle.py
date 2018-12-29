@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from kivy.logger import Logger as log
 from kivy.clock import Clock
-from kivy.uix.screenmanager import Screen, FadeTransition
+from kivy.logger import Logger as log
+from kivy.uix.screenmanager import FadeTransition, Screen
+
 from .screensavers import GameOfLifeArea
 
 SCREENSAVER_TIMEOUT = 2

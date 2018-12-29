@@ -1,12 +1,14 @@
 import os
 
-from smart_house_ui.light_controller import LightController
 from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager
+from kivy.config import Config
 from kivy.lang import Builder
 from kivy.logger import Logger as log
-from kivy.config import Config
-from .screens import MainScreen, SettingsScreen, IdleScreen
+from kivy.uix.screenmanager import ScreenManager
+
+from smart_house_ui.light_controller import LightController
+
+from .screens import IdleScreen, MainScreen, SettingsScreen
 
 
 class CustomScreenManager(ScreenManager):

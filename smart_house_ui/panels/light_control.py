@@ -1,7 +1,7 @@
-from kivy.clock import Clock
-from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty
 from kivy.app import App
+from kivy.clock import Clock
+from kivy.properties import NumericProperty
+from kivy.uix.widget import Widget
 
 
 class LightControlWidget(Widget):

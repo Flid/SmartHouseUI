@@ -2,15 +2,14 @@
 from __future__ import unicode_literals
 
 import json
-from typing import List, Dict, Any
+from datetime import date
+from typing import Any, Dict, List
 
+from kivy.app import App
 from kivy.clock import Clock
+from kivy.config import Config, ConfigParser
 from kivy.uix.screenmanager import Screen
 from kivy.uix.settings import Settings
-from kivy.config import Config, ConfigParser
-from kivy.app import App
-from datetime import date
-
 
 _ORIGINAL_KEYS_KEYS = {"type", "title", "desc", "key", "section", "options"}
 
