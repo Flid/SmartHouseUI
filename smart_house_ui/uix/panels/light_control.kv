@@ -11,3 +11,20 @@
         
         size_hint: 0.8, 0.2
         pos_hint: {'x': 0.1, 'top': 0.95}
+
+    FloatLayout:
+        size_hint: 0.9, 0.2
+        pos_hint: {'x': 0.05, 'top': 0.7}
+
+        Label:
+            text: 'Next alarm:'
+            size_hint: 0.4, 1
+            pos_hint: {'x': 0, 'top': 1}
+            font_size: 20
+
+        Label:
+            id: alarm_state
+            text: '--'
+            size_hint: 0.6, 1
+            pos_hint: {'x': 0.4, 'top': 1}
+            font_size: 20
