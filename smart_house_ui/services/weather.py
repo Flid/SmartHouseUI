@@ -8,7 +8,6 @@ necessity today... It's England, I need it!
 import time
 
 import requests
-import json
 from smart_house_ui import config
 from .base import ServiceBase
 from threading import RLock
@@ -23,6 +22,9 @@ HEAVY_RAIN = 2.0
 DRIZZLE = 0.7
 
 KELVIN_TO_CELSIUS_CONSTANT = 273.15
+FORECAST_URL = 'http://api.openweathermap.org/data/2.5/forecast'
+WEATHER_URL = 'http://api.openweathermap.org/data/2.5/weather'
+WEATHER_ICON_URL_TEMPLATE = 'http://openweathermap.org/img/w/{}.png'
 
 
 class WeatherData(NamedTuple):
@@ -71,16 +73,18 @@ class WeatherService(ServiceBase):
     # Forecast has data for every 3 hours, so let'sconsider only 12 hours
     RAIN_ITEMS_TO_MEASURE = 4
     UPDATE_EVERY = 60  # sec
+    RESET_AFTER_N_FAILURES = 5
 
     def __init__(self):
         super().__init__()
         self._data_lock = RLock()
         self._data = None
+        self.failures_count = 0
 
     def get_rain_forecast(self):
         log.info('Getting the weather forecast')
         response = requests.get(
-            'http://api.openweathermap.org/data/2.5/forecast',
+            FORECAST_URL,
             params={
                 'id': config.CITY_ID_LONDON,
                 'appid': config.WEATHER_API_KEY,
@@ -101,21 +105,22 @@ class WeatherService(ServiceBase):
     def _get_weather(self) -> WeatherData:
         log.info('Getting the current weather')
         response = requests.get(
-            'http://api.openweathermap.org/data/2.5/weather',
+            WEATHER_URL,
             params={
                 'id': config.CITY_ID_LONDON,
                 'appid': config.WEATHER_API_KEY,
             },
         )
         response.raise_for_status()
-
         data = response.json()
 
         return WeatherData(
             humidity=data['main']['humidity'],
             temperature=data['main']['temp'] - KELVIN_TO_CELSIUS_CONSTANT,
             pressure=data['main']['pressure'],
-            icon_url=f'http://openweathermap.org/img/w/{data["weather"][0]["icon"]}.png',
+            icon_url=WEATHER_ICON_URL_TEMPLATE.format(
+                data["weather"][0]["icon"],
+            ),
             rain_forecast_rating=self.get_rain_forecast(),
         )
 
@@ -131,6 +136,12 @@ class WeatherService(ServiceBase):
                 log.info('Weather has been successfully updated')
             except Exception:
                 log.exception('Error processing weather')
+                self.failures_count += 1
+
+                if self.failures_count >= self.RESET_AFTER_N_FAILURES:
+                    with self._data_lock:
+                        self._data = None
+
             finally:
                 time.sleep(self.UPDATE_EVERY)
 
