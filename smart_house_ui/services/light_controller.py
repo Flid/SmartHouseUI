@@ -6,6 +6,7 @@ from threading import Thread
 
 import websocket
 from kivy.logger import Logger as log
+
 from .base import ServiceBase
 
 Message = namedtuple("Message", "body, persistent")

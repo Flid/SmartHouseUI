@@ -1,15 +1,21 @@
-from typing import List, Optional, Tuple, NamedTuple
+from datetime import datetime
+from typing import List, NamedTuple, Optional
 
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.config import Config
+from kivy.logger import Logger as log
 from kivy.properties import NumericProperty
 from kivy.uix.widget import Widget
-from kivy.config import Config
-from datetime import date, timedelta, datetime
-from kivy.logger import Logger as log
 
 WEEK_DAYS = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
 ]
 
 
@@ -46,10 +52,8 @@ class LightControlWidget(Widget):
         assert len(schedule) == 7
 
         now_dt = datetime.now()
-        alarm_minute = max(0, min(60, Config.getint('light_controls',
-                                                    'alarm_minute')))
-        alarm_hour = max(0,
-                         min(24, Config.getint('light_controls', 'alarm_hour')))
+        alarm_minute = max(0, min(60, Config.getint("light_controls", "alarm_minute")))
+        alarm_hour = max(0, min(24, Config.getint("light_controls", "alarm_hour")))
 
         alarm_dt = now_dt.replace(hour=alarm_hour, minute=alarm_minute)
 
@@ -86,22 +90,26 @@ class LightControlWidget(Widget):
         if not App.get_running_app().light_control_client.started:
             return
 
-        schedule = Config.get('light_controls', 'alarm_schedule').lower()
+        schedule = Config.get("light_controls", "alarm_schedule").lower()
 
-        if schedule == 'off':
+        if schedule == "off":
             schedule = [False] * 7
-        elif schedule == 'every day':
+        elif schedule == "every day":
             schedule = [True] * 7
-        elif schedule == 'working days':
+        elif schedule == "working days":
             schedule = [True, True, True, True, True, False, False]
         else:
-            log.warning('Invalaid alarm_schedule in config')
+            log.warning("Invalaid alarm_schedule in config")
             return
 
         alarm_trigger = self._get_next_alarm_weekday(schedule)
 
         if not alarm_trigger.is_enabled:
-            self.ids['alarm_state'].text = 'OFF'
+            self.ids["alarm_state"].text = "OFF"
         else:
-            weekday = "Today" if alarm_trigger.today else WEEK_DAYS[alarm_trigger.weekday]
-            self.ids['alarm_state'].text = f'{alarm_trigger.hour:02}:{alarm_trigger.minute:02} ({weekday})'
+            weekday = (
+                "Today" if alarm_trigger.today else WEEK_DAYS[alarm_trigger.weekday]
+            )
+            self.ids[
+                "alarm_state"
+            ].text = f"{alarm_trigger.hour:02}:{alarm_trigger.minute:02} ({weekday})"

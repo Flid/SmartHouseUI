@@ -2,12 +2,10 @@ import os
 import re
 from typing import Optional
 
-import requests
+from kivy.app import App
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 from kivy.uix.widget import Widget
-from kivy.app import App
-from requests.exceptions import RequestException
 
 from smart_house_ui.services.weather import WeatherData
 

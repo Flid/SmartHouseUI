@@ -32,6 +32,6 @@ else:
 dictConfig(LOGGING)
 
 
-from smart_house_ui.main import SmartHouseApp  # isort: skip
+from smart_house_ui.main import SmartHouseApp  # noqa isort:skip
 app = SmartHouseApp()
 app.run()
