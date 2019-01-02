@@ -41,3 +41,6 @@ KIVY_WINDOW=sdl2 KIVY_GL_BACKEND=sdl2 USE_SDL2=1 pip install --no-binary :all: k
 
 # Use original RPi 7" touchscreen
 https://kivy.org/doc/stable/installation/installation-rpi.html#using-official-rpi-touch-display
+
+# Autostart 
+An example Systemd script can be found in the root. Simple and just works.

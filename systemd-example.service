@@ -1,0 +1,20 @@
+[Unit]
+Description=SmartHouse controller
+After=network.target
+After=multi-user.target
+After=avahi-daemon.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/SmartHouseUI
+ExecStart=/usr/local/bin/python3 run_app.py
+Restart=always
+Environment=DISPLAY=:0
+Environment=WEATHER_API_KEY=<FIXME>
+ExecStartPre=/usr/bin/git pull
+ExecStartPre=/usr/local/bin/python3 -mpip install -r requirements.txt
+
+[Install]
+WantedBy=multi-user.target
+
