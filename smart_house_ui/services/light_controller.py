@@ -6,7 +6,7 @@ from threading import Thread
 
 from kivy.logger import Logger as log
 import time
-import RPi.GPIO as GPIO
+import pigpio
 
 from .base import ServiceBase
 
@@ -16,15 +16,18 @@ Message = namedtuple("Message", "body, persistent")
 class LightController(ServiceBase):
     UPDATE_INTERVAL = 0.1
 
-    def __init__(self, gpio_port=12, frequency=200):
-        self._gpio_port = gpio_port
-        self._frequency = frequency
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self._gpio_port, GPIO.OUT)
+    def __init__(self, pin=18):
+        self._pin = pin
+        pigpio.set_mode(self._pin, pigpio.OUTPUT)
         self._current_brightness = 0
         self._target_brightness = 0
         self._brightness_change_speed = 1
         self._exitting = False
+
+        self._pwm = pigpio.pi()
+
+        if not self._pwm.connected:
+            raise RuntimeError('Failed to initialize PWM')
 
         super().__init__()
 
@@ -42,17 +45,12 @@ class LightController(ServiceBase):
 
         log.info('Increasing the brightness by {}'.format(diff))
         self._current_brightness += diff
-        self._pwm.ChangeDutyCycle(self._current_brightness)
+        self._pwm.set_PWM_dutycycle(self._current_brightness)
 
     def _worker(self):
-        self._pwm = GPIO.PWM(self._gpio_port, self._frequency)
-        self._pwm.start(0)
-
         while True:
             try:
                 if self._exitting:
-                    self._pwm.stop()
-                    GPIO.cleanup()
                     sys.exit()
 
                 self._step_brightness()
@@ -62,7 +60,7 @@ class LightController(ServiceBase):
                 log.exception('Error processing LightController events')
 
     def set_brightness(self, value: int):
-        assert 0 <= value <= 100
+        assert 0 <= value <= 255
         self._target_brightness = value
         self._brightness_change_speed = 5
 

@@ -43,8 +43,7 @@ class LightControlWidget(Widget):
         self.last_brightness_sent = None
 
     def send_updates(self, instance):
-        brightness = int(self.current_brightness * 128 / 256)
-        brightness = clamp(brightness, 0, 100)
+        brightness = clamp(self.current_brightness, 0, 255)
 
         if self.last_brightness_sent != brightness:
             self.last_brightness_sent = brightness
