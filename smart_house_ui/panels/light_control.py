@@ -27,9 +27,13 @@ class NextAlarmTrigger(NamedTuple):
     today: bool
 
 
+def clamp(value, min_value, max_value):
+    return max(min_value, min(max_value, value))
+
+
 class LightControlWidget(Widget):
     current_brightness = NumericProperty(0)
-    CHECK_UPDATES_EVERY = 0.5  # sec
+    CHECK_UPDATES_EVERY = 0.33  # sec
 
     def __init__(self, *args, **kwargs):
         super(LightControlWidget, self).__init__(*args, **kwargs)
@@ -39,21 +43,19 @@ class LightControlWidget(Widget):
         self.last_brightness_sent = None
 
     def send_updates(self, instance):
-        brightness = max(0, min(255, int(self.current_brightness)))
+        brightness = int(self.current_brightness * 128 / 256)
+        brightness = clamp(brightness, 0, 127)
 
         if self.last_brightness_sent != brightness:
             self.last_brightness_sent = brightness
-
-            App.get_running_app().light_control_client.send(
-                command="set_brightness", data={"value": brightness}
-            )
+            App.get_running_app().light_control_client.set_brightness(brightness)
 
     def _get_next_alarm_weekday(self, schedule: List[bool]) -> NextAlarmTrigger:
         assert len(schedule) == 7
 
         now_dt = datetime.now()
-        alarm_minute = max(0, min(60, Config.getint("light_controls", "alarm_minute")))
-        alarm_hour = max(0, min(24, Config.getint("light_controls", "alarm_hour")))
+        alarm_minute = clamp(Config.getint("light_controls", "alarm_minute"), 0, 60)
+        alarm_hour = clamp(Config.getint("light_controls", "alarm_hour"), 0, 24)
 
         alarm_dt = now_dt.replace(hour=alarm_hour, minute=alarm_minute)
 
