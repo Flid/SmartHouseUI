@@ -45,7 +45,7 @@ class LightController(ServiceBase):
 
         log.info('Increasing the brightness by {}'.format(diff))
         self._current_brightness += diff
-        self._pwm.set_PWM_dutycycle(self._current_brightness)
+        self._pwm.set_PWM_dutycycle(self._pin, self._current_brightness)
 
     def _worker(self):
         while True:
