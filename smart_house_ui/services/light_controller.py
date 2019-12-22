@@ -22,8 +22,6 @@ class LightController(ServiceBase):
         self._frequency = frequency
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self._gpio_port, GPIO.OUT)
-        self._pwm = GPIO.PWM(self._gpio_port, self._frequency)
-        self._pwm.start(0)
 
         self._queue = Queue(maxsize=10)
         self._current_brightness = 0
@@ -60,6 +58,9 @@ class LightController(ServiceBase):
 
 
     def _worker(self):
+        self._pwm = GPIO.PWM(self._gpio_port, self._frequency)
+        self._pwm.start(0)
+
         while True:
             while True:
                 try:
@@ -77,7 +78,7 @@ class LightController(ServiceBase):
 
     def set_brightness(self, value: int):
         assert 0 <= value <= 100
-
+        log.info('Trying to set brightness to {}'.format(value))
         try:
             self._queue.put(('set_brightness', value))
         except Full:
