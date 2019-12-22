@@ -16,7 +16,7 @@ Message = namedtuple("Message", "body, persistent")
 class LightController(ServiceBase):
     UPDATE_INTERVAL = 0.1
 
-    def __init__(self, gpio_port=12, frequency=1000):
+    def __init__(self, gpio_port=12, frequency=200):
         self._gpio_port = gpio_port
         self._frequency = frequency
         GPIO.setmode(GPIO.BOARD)
@@ -30,7 +30,6 @@ class LightController(ServiceBase):
 
     def _step_brightness(self):
         if self._current_brightness == self._target_brightness:
-            log.info('No brightness change required')
             return
 
         diff = self._target_brightness - self._current_brightness
@@ -64,8 +63,6 @@ class LightController(ServiceBase):
 
     def set_brightness(self, value: int):
         assert 0 <= value <= 100
-        log.info('Trying to set brightness to {}'.format(value))
-
         self._target_brightness = value
         self._brightness_change_speed = 5
 
