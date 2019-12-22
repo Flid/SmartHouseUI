@@ -2,7 +2,6 @@ import json
 import sys
 import time
 from collections import namedtuple
-from queue import Queue, Empty, Full
 from threading import Thread
 
 from kivy.logger import Logger as log
@@ -22,25 +21,12 @@ class LightController(ServiceBase):
         self._frequency = frequency
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self._gpio_port, GPIO.OUT)
-
-        self._queue = Queue(maxsize=10)
         self._current_brightness = 0
         self._target_brightness = 0
         self._brightness_change_speed = 1
+        self._exitting = False
 
         super().__init__()
-
-    def _process_message(self, msg):
-        code, payload = msg
-
-        if code == 'exit':
-            self._pwm.stop()
-            GPIO.cleanup()
-            sys.exit()
-
-        if code == 'set_brightness':
-            self._target_brightness = payload
-            self._brightness_change_speed = 5
 
     def _step_brightness(self):
         if self._current_brightness == self._target_brightness:
@@ -56,34 +42,29 @@ class LightController(ServiceBase):
         self._current_brightness += diff
         self._pwm.ChangeDutyCycle(self._current_brightness)
 
-
     def _worker(self):
         self._pwm = GPIO.PWM(self._gpio_port, self._frequency)
         self._pwm.start(0)
 
         while True:
-            while True:
-                try:
-                    msg = self._queue.get_nowait()
-                    try:
-                        self._process_message(msg)
-                    except Exception:
-                        log.exception('Error while processing LightController command')
+            try:
+                if self._exitting:
+                    self._pwm.stop()
+                    GPIO.cleanup()
+                    sys.exit()
 
-                except Empty:
-                    pass
+                self._step_brightness()
 
-            time.sleep(self.UPDATE_INTERVAL)
-            self._step_brightness()
+                time.sleep(self.UPDATE_INTERVAL)
+            except Exception:
+                log.exception('Error processing LightController events')
 
     def set_brightness(self, value: int):
         assert 0 <= value <= 100
         log.info('Trying to set brightness to {}'.format(value))
-        try:
-            self._queue.put(('set_brightness', value))
-        except Full:
-            log.warning('Message queue is full')
 
+        self._target_brightness = value
+        self._brightness_change_speed = 5
 
     def update_settings(self, settings):
         pass  # Not implemented yet
