@@ -18,13 +18,13 @@ class LightController(ServiceBase):
 
     def __init__(self, pin=18):
         self._pin = pin
-        pigpio.set_mode(self._pin, pigpio.OUTPUT)
         self._current_brightness = 0
         self._target_brightness = 0
         self._brightness_change_speed = 1
         self._exitting = False
 
         self._pwm = pigpio.pi()
+        self._pwm.set_mode(self._pin, pigpio.OUTPUT)
 
         if not self._pwm.connected:
             raise RuntimeError('Failed to initialize PWM')
