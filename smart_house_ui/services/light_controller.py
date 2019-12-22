@@ -18,17 +18,17 @@ class LightController(ServiceBase):
     UPDATE_INTERVAL = 0.1
 
     def __init__(self, gpio_port=12, frequency=1000):
+        self._gpio_port = gpio_port
+        self._frequency = frequency
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self._gpio_port, GPIO.OUT)
+        self._pwm = GPIO.PWM(self._gpio_port, self._frequency)
+        self._pwm.start(0)
 
         self._queue = Queue(maxsize=10)
         self._current_brightness = 0
         self._target_brightness = 0
         self._brightness_change_speed = 1
-        self._pwm = GPIO.PWM(self._gpio_port, self._frequency)
-        self._pwm.start(0)
-        self._gpio_port = gpio_port
-        self._frequency = frequency
 
         super().__init__()
 
