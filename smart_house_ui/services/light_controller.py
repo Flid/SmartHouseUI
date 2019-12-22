@@ -46,6 +46,7 @@ class LightController(ServiceBase):
 
     def _step_brightness(self):
         if self._current_brightness == self._target_brightness:
+            log.info('No brightness change required')
             return
 
         diff = self._target_brightness - self._current_brightness
@@ -53,6 +54,7 @@ class LightController(ServiceBase):
 
         diff = max(max_diff, diff)
         diff = min(-max_diff, diff)
+        log.info('Increasing the brightness by {}'.format(diff))
         self._current_brightness += diff
         self._pwm.ChangeDutyCycle(self._current_brightness)
 
