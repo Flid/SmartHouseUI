@@ -206,8 +206,6 @@ class SettingsScreen(Screen):
         _setup_panel(settings, "light_controls", _LIGHT_CONTROL_PANEL)
 
         settings.bind(on_config_change=self.on_config_change, on_close=self.on_close)
-        Clock.schedule_once(self.update_all_settings, timeout=0)
-        Clock.schedule_interval(self.update_all_settings, timeout=600)
 
     def _get_hardware_settings(self, option, value):
         if option.get("hardware_option_generator"):
@@ -235,21 +233,9 @@ class SettingsScreen(Screen):
             settings = self._get_hardware_settings(option, value)
 
             if settings:
-                App.get_running_app().light_control_client.send(
-                    command="update_settings", data=settings, persistent=True
+                App.get_running_app().light_control_client.update_settings(
+                    settings,
                 )
-
-    def update_all_settings(self, instance):
-        all_settings = {}
-
-        for (section, key), option in _OPTION_BY_KEY.items():
-            settings = self._get_hardware_settings(option, Config.get(section, key))
-            if settings:
-                all_settings.update(settings)
-
-        App.get_running_app().light_control_client.send(
-            command="update_settings", data=all_settings, persistent=True
-        )
 
     def on_close(self, *args):
         App.get_running_app().sm.current = "main"

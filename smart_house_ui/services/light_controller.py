@@ -59,3 +59,6 @@ class LightController(ServiceBase):
         except Full:
             log.warning('Message queue is full')
 
+
+    def update_settings(self, settings):
+        pass  # Not implemented yet
