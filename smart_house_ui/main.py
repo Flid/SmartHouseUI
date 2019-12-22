@@ -39,9 +39,7 @@ class SmartHouseApp(App):
             Builder.load_file(os.path.join("smart_house_ui/uix", f + ".kv"))
 
     def build(self):
-        self.light_control_client = LightController(
-            Config.get("light_controls", "ip_address"), 81, debug=True
-        )
+        self.light_control_client = LightController()
 
         if Config.getboolean("light_controls", "device_enabled"):
             self.light_control_client.start()
