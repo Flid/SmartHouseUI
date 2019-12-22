@@ -36,8 +36,11 @@ class LightController(ServiceBase):
         diff = self._target_brightness - self._current_brightness
         max_diff = self._brightness_change_speed * self.UPDATE_INTERVAL
 
-        diff = max(max_diff, diff)
-        diff = min(-max_diff, diff)
+        if diff > 0:
+            diff = max(max_diff, diff)
+        else:
+            diff = min(-max_diff, diff)
+
         log.info('Increasing the brightness by {}'.format(diff))
         self._current_brightness += diff
         self._pwm.ChangeDutyCycle(self._current_brightness)
