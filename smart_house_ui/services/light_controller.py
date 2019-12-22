@@ -62,7 +62,7 @@ class LightController(ServiceBase):
     def set_brightness(self, value: int):
         assert 0 <= value <= 255
         self._target_brightness = value
-        self._brightness_change_speed = 5
+        self._brightness_change_speed = 50
 
     def update_settings(self, settings):
         pass  # Not implemented yet
