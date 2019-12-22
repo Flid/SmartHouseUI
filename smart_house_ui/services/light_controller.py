@@ -32,11 +32,11 @@ class LightController(ServiceBase):
 
         super().__init__()
 
-    def _process_message(self, pwm, msg):
+    def _process_message(self, msg):
         code, payload = msg
 
         if code == 'exit':
-            pwm.stop()
+            self._pwm.stop()
             GPIO.cleanup()
             sys.exit()
 
@@ -63,7 +63,7 @@ class LightController(ServiceBase):
                 try:
                     msg = self._queue.get_nowait()
                     try:
-                        self._process_message(pwm, msg)
+                        self._process_message(msg)
                     except Exception:
                         log.exception('Error while processing LightController command')
 
